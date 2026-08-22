@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Playwright Locator Practice Lab</title>
+<style>
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    color:#1f2933;
+    background:#f4f7fb;
+    margin:0;
+    padding:24px 20px 60px;
+    line-height:1.45;
+  }
+  h1{font-size:24px;margin-bottom:4px;color:#4338ca;}
+  h2{
+    font-size:15px;margin-top:34px;
+    color:#0369a1;
+    border-left:4px solid #0ea5e9;
+    padding:4px 0 4px 10px;
+    text-transform:uppercase;letter-spacing:.03em;
+  }
+  .card{
+    border:1px solid #dbe3ec;
+    border-left:4px solid #6366f1;
+    background:#ffffff;
+    border-radius:8px;
+    padding:12px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .label{font-weight:bold;font-size:13px;margin-bottom:8px;color:#c026d3;}
+  code{
+    display:block;
+    background:#0f172a;
+    color:#5eead4;
+    border-radius:6px;
+    padding:7px 10px;
+    margin-top:8px;
+    font-size:12.5px;
+    white-space:pre-wrap;
+    font-family:"SF Mono",Consolas,Menlo,monospace;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  a{color:#2563eb;}
+
+  /* generic controls */
+  button{
+    background:#6366f1;color:#fff;border:none;
+    padding:8px 14px;border-radius:6px;font-size:14px;cursor:pointer;
+  }
+  button:hover{background:#4f46e5;}
+  button:disabled{background:#cbd5e1;color:#64748b;cursor:not-allowed;}
+  button[aria-pressed="true"]{background:#16a34a;}
+  button[role="switch"][aria-checked="true"]{background:#16a34a;}
+  input[type=text],input[type=search],input[type=number],input[type=password],select{
+    border:1px solid #94a3b8;border-radius:6px;padding:7px 9px;font-size:14px;background:#fff;
+  }
+  input:disabled{background:#e2e8f0;color:#64748b;}
+  input[type=range]{accent-color:#6366f1;}
+  input[type=checkbox],input[type=radio]{accent-color:#16a34a;width:16px;height:16px;}
+
+  /* main tabs */
+  .maintabs{margin:16px 0;}
+  .maintab-btn{
+    background:#e0e7ff;color:#4338ca;border:1px solid #c7d2fe;
+    padding:9px 18px;font-size:14px;cursor:pointer;
+    margin-right:6px;border-radius:6px 6px 0 0;font-weight:600;
+  }
+  .maintab-btn[aria-selected="true"]{background:#4338ca;color:#fff;border-color:#4338ca;}
+  .maintabpanel{display:none;}
+  .maintabpanel.active{display:block;}
+
+  table{border-collapse:collapse;}
+  table th{background:#e0f2fe;color:#075985;border:1px solid #7dd3fc;padding:7px 10px;}
+  table td{border:1px solid #bae6fd;padding:7px 10px;}
+
+  [role=alert]{border:1px solid #fca5a5;background:#fef2f2;color:#b91c1c;padding:9px 12px;border-radius:6px;}
+
+  .menu-wrap{position:relative;display:inline-block;}
+  .menu{
+    position:absolute;top:104%;left:0;background:#fff;
+    border:1px solid #c7d2fe;border-radius:8px;display:none;min-width:170px;
+    box-shadow:0 6px 16px rgba(0,0,0,.12);z-index:10;overflow:hidden;
+  }
+  .menu.open{display:block;}
+  .menu [role=menuitem]{display:block;width:100%;text-align:left;border:none;border-bottom:1px solid #eef2ff;background:#fff;color:#3730a3;padding:9px 12px;border-radius:0;}
+  .menu [role=menuitem]:hover{background:#eef2ff;}
+
+  .listbox{border:1px solid #a5b4fc;border-radius:8px;width:190px;overflow:hidden;}
+  .listbox [role=option]{padding:8px 12px;cursor:pointer;border-bottom:1px solid #eef2ff;color:#3730a3;}
+  .listbox [role=option][aria-selected="true"]{background:#6366f1;color:#fff;}
+  .listbox [role=option]:not([aria-selected="true"]):hover{background:#eef2ff;}
+
+  .subtablist [role=tab]{border:1px solid #7dd3fc;background:#e0f2fe;color:#075985;padding:7px 14px;margin-right:6px;border-radius:6px 6px 0 0;}
+  .subtablist [role=tab][aria-selected="true"]{background:#0ea5e9;color:#fff;border-color:#0ea5e9;}
+  .subtabpanel{border:1px solid #7dd3fc;background:#f0f9ff;border-radius:0 8px 8px 8px;padding:12px;margin-top:0;}
+
+  img{width:60px;height:60px;vertical-align:middle;border-radius:8px;}
+  dialog{border:1px solid #c7d2fe;border-radius:10px;padding:18px;}
+  table.demo-table{border-collapse:collapse;}
+  table.demo-table th{background:#e0f2fe;color:#075985;border:1px solid #7dd3fc;padding:6px 10px;text-align:left;}
+  table.demo-table td{border:1px solid #bae6fd;padding:6px 10px;}
+  table.demo-table caption{font-weight:bold;color:#0369a1;padding:4px;}
+  dialog::backdrop{background:rgba(30,27,75,.45);}
+
+  .msg{
+    margin-top:8px;
+    padding:7px 10px;
+    border:1px solid #86efac;
+    border-radius:6px;
+    background:#dcfce7;
+    color:#166534;
+    font-weight:600;
+    font-size:12.5px;
+    min-height:16px;
+    display:none;
+  }
+  .msg.show{display:block;}
+</style>
+</head>
+<body>
+
+  <h1>Playwright Locator Practice Lab</h1>
+  <p>Each element is captioned with the exact locator to use.</p>
+
+  <div class="maintabs" role="tablist" aria-label="Locator categories">
+    <button class="maintab-btn" role="tab" id="maintab-role" aria-selected="true" aria-controls="panel-role" onclick="showMainTab('role')">getByRole</button>
+    <button class="maintab-btn" role="tab" id="maintab-other" aria-selected="false" aria-controls="panel-other" onclick="showMainTab('other')">getByLabel / getByPlaceholder / etc.</button>
+    <button class="maintab-btn" role="tab" id="maintab-allroles" aria-selected="false" aria-controls="panel-allroles" onclick="showMainTab('allroles')">All Roles (one section each)</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: getByRole                                              -->
+  <!-- ============================================================ -->
+  <div id="panel-role" class="maintabpanel active" role="tabpanel" aria-labelledby="maintab-role">
+
+    <h2>Headings &amp; Links — name, level</h2>
+    <div class="card">
+      <div class="label">Page Title Heading (level 1)</div>
+      <h1 style="font-size:20px;margin:0;">Locator Practice Page</h1>
+      <code>getByRole('heading', { name: 'Locator Practice Page', level: 1 })</code>
+    </div>
+    <div class="card">
+      <div class="label">Section Heading (level 2)</div>
+      <h2 style="font-size:16px;margin:0;border:none;">User Registration Form</h2>
+      <code>getByRole('heading', { name: 'User Registration Form', level: 2 })</code>
+    </div>
+    <div class="card">
+      <div class="label">Navigation Link</div>
+      <a href="#">Go to Homepage</a>
+      <code>getByRole('link', { name: 'Go to Homepage' })</code>
+    </div>
+
+    <h2>Buttons — name, exact, disabled, pressed</h2>
+    <div class="card">
+      <div class="label">Submit Button (basic name match)</div>
+      <button>Submit Form</button>
+      <code>getByRole('button', { name: 'Submit Form' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Exact Name Collision Pair</div>
+      <div class="row">
+        <button>Save</button>
+        <button>Save Draft</button>
+      </div>
+      <code>getByRole('button', { name: 'Save', exact: true })  // matches "Save" only</code>
+    </div>
+    <div class="card">
+      <div class="label">Disabled Delete Account Button</div>
+      <button disabled>Delete Account</button>
+      <code>getByRole('button', { name: 'Delete Account', disabled: true })</code>
+    </div>
+    <div class="card">
+      <div class="label">Bold Toggle Button (pressed state)</div>
+      <button aria-pressed="true" onclick="const p=this.getAttribute('aria-pressed')==='true'?'false':'true';this.setAttribute('aria-pressed',p);report(this,'Bold toggled → pressed='+p);">Bold</button>
+      <code>getByRole('button', { name: 'Bold', pressed: true })</code>
+    </div>
+
+    <h2>Form Controls — checked, disabled, various roles</h2>
+    <div class="card">
+      <div class="label">Unchecked Checkbox</div>
+      <div class="row"><input type="checkbox" id="terms"><label for="terms">Accept Terms and Conditions</label></div>
+      <code>getByRole('checkbox', { name: 'Accept Terms and Conditions', checked: false })</code>
+    </div>
+    <div class="card">
+      <div class="label">Pre-checked Checkbox</div>
+      <div class="row"><input type="checkbox" id="newsletter" checked><label for="newsletter">Subscribe to Newsletter</label></div>
+      <code>getByRole('checkbox', { name: 'Subscribe to Newsletter', checked: true })</code>
+    </div>
+    <div class="card">
+      <div class="label">Radio Group (Gender)</div>
+      <div class="row">
+        <input type="radio" name="gender" id="male"><label for="male">Male</label>
+        <input type="radio" name="gender" id="female" checked><label for="female">Female</label>
+      </div>
+      <code>getByRole('radio', { name: 'Female', checked: true })</code>
+    </div>
+    <div class="card">
+      <div class="label">Search Query Textbox (aria-label, no visible label)</div>
+      <input type="text" aria-label="Search Query" placeholder="type here">
+      <code>getByRole('textbox', { name: 'Search Query' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Locked Field (disabled textbox)</div>
+      <input type="text" aria-label="Locked Field" value="Cannot edit" disabled>
+      <code>getByRole('textbox', { name: 'Locked Field', disabled: true })</code>
+    </div>
+    <div class="card">
+      <div class="label">Country Dropdown (combobox)</div>
+      <label for="country">Select Country</label><br>
+      <select id="country">
+        <option>India</option><option>USA</option><option>UAE</option>
+      </select>
+      <code>getByRole('combobox', { name: 'Select Country' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Preferred Skills (native multi-select listbox)</div>
+      <label for="skills">Select Skills</label><br>
+      <select id="skills" multiple size="4">
+        <option>JavaScript</option><option>Python</option><option>Java</option><option>C#</option>
+      </select>
+      <code>getByRole('listbox', { name: 'Select Skills' })
+getByRole('option', { name: 'Python' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Quantity Selector (spinbutton)</div>
+      <label for="qty">Quantity Selector</label><br>
+      <input type="number" id="qty" value="1" min="1" max="10">
+      <code>getByRole('spinbutton', { name: 'Quantity Selector' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Volume Control (slider)</div>
+      <label for="volume">Volume Control</label><br>
+      <input type="range" id="volume" min="0" max="100" value="50">
+      <code>getByRole('slider', { name: 'Volume Control' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Site Search Box (searchbox)</div>
+      <input type="search" aria-label="Site Search Box" placeholder="Search...">
+      <code>getByRole('searchbox', { name: 'Site Search Box' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Dark Mode Toggle (switch)</div>
+      <button role="switch" aria-checked="false" aria-label="Dark Mode Toggle" onclick="const c=this.getAttribute('aria-checked')==='true'?'false':'true';this.setAttribute('aria-checked',c);report(this,'Dark Mode Toggle → checked='+c);">Toggle</button>
+      <code>getByRole('switch', { name: 'Dark Mode Toggle', checked: false })</code>
+    </div>
+
+    <h2>Lists &amp; Tables — list, listitem, table, columnheader, row, cell</h2>
+    <div class="card">
+      <div class="label">Shopping Cart Items (list / listitem)</div>
+      <ul>
+        <li>Wireless Mouse</li>
+        <li>Mechanical Keyboard</li>
+      </ul>
+      <code>getByRole('list') → getByRole('listitem', { name: 'Wireless Mouse' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Order Summary Table (table / columnheader / row / cell)</div>
+      <table>
+        <thead><tr><th>Product</th><th>Price</th></tr></thead>
+        <tbody><tr><td>Wireless Mouse</td><td>799</td></tr></tbody>
+      </table>
+      <code>getByRole('table') → getByRole('columnheader', { name: 'Product' }) → getByRole('cell', { name: 'Wireless Mouse' })</code>
+    </div>
+
+    <h2>Status &amp; Feedback — alert, progressbar, dialog</h2>
+    <div class="card">
+      <div class="label">Validation Error Alert</div>
+      <div role="alert">Error: Invalid Email Address</div>
+      <code>getByRole('alert')</code>
+    </div>
+    <div class="card">
+      <div class="label">File Upload Progress</div>
+      <progress role="progressbar" aria-label="Upload Progress" value="70" max="100"></progress>
+      <code>getByRole('progressbar', { name: 'Upload Progress' })</code>
+    </div>
+    <div class="card">
+      <div class="label">Confirmation Dialog (open via button)</div>
+      <button onclick="document.getElementById('confirmDialog').showModal()">Open Confirmation Dialog</button>
+      <dialog id="confirmDialog" aria-label="Confirm Deletion">
+        <p><strong>Confirm Deletion</strong></p>
+        <p>This action cannot be undone.</p>
+        <button onclick="document.getElementById('confirmDialog').close()">Cancel</button>
+        <button onclick="document.getElementById('confirmDialog').close()">Confirm</button>
+      </dialog>
+      <code>getByRole('dialog', { name: 'Confirm Deletion' })</code>
+    </div>
+
+    <h2>Menus &amp; Expandable — expanded, menuitem</h2>
+    <div class="card">
+      <div class="label">Options Menu (expandable dropdown)</div>
+      <div class="menu-wrap">
+        <button aria-haspopup="true" aria-expanded="false" id="optionsBtn" onclick="toggleMenu()">Options Menu</button>
+        <div class="menu" id="optionsMenu" role="menu">
+          <button role="menuitem" onclick="closeMenu()">Edit Profile</button>
+          <button role="menuitem" onclick="closeMenu()">Change Password</button>
+          <button role="menuitem" onclick="closeMenu()">Logout</button>
+        </div>
+      </div>
+      <code>getByRole('button', { name: 'Options Menu', expanded: false })
+getByRole('menuitem', { name: 'Edit Profile' })</code>
+    </div>
+
+    <h2>Listbox / Option — selected</h2>
+    <div class="card">
+      <div class="label">Favorite Color Listbox</div>
+      <div class="listbox" role="listbox" aria-label="Favorite Color">
+        <div role="option" aria-selected="false" onclick="selectOption(this)">Blue</div>
+        <div role="option" aria-selected="true" onclick="selectOption(this)">Red</div>
+        <div role="option" aria-selected="false" onclick="selectOption(this)">Green</div>
+      </div>
+      <code>getByRole('listbox', { name: 'Favorite Color' }) → getByRole('option', { name: 'Red', selected: true })</code>
+    </div>
+
+    <h2>Tabs — selected</h2>
+    <div class="card">
+      <div class="label">Mini Tab Widget (Profile / Settings)</div>
+      <div class="subtablist" role="tablist" aria-label="Mini demo tabs">
+        <button role="tab" id="mt-profile" aria-selected="true" onclick="showSubTab('profile')">Profile</button>
+        <button role="tab" id="mt-settings" aria-selected="false" onclick="showSubTab('settings')">Settings</button>
+      </div>
+      <div class="subtabpanel" id="sub-profile" role="tabpanel">Profile content goes here.</div>
+      <div class="subtabpanel" id="sub-settings" role="tabpanel" style="display:none;">Settings content goes here.</div>
+      <code>getByRole('tab', { name: 'Profile', selected: true })
+getByRole('tabpanel')</code>
+    </div>
+
+    <h2>Image — name (from alt text)</h2>
+    <div class="card">
+      <div class="label">Company Logo</div>
+      <img src="https://placehold.co/60x60/000000/ffffff?text=CX" alt="Company Logo">
+      <code>getByRole('img', { name: 'Company Logo' })</code>
+    </div>
+
+    <h2>Popups — alert, confirm, prompt, new tab, download, upload</h2>
+    <div class="card">
+      <div class="label">Browser Alert Dialog</div>
+      <button onclick="alert('This is a simple alert message!')">Show Alert</button>
+      <code>page.on('dialog', dialog =&gt; dialog.accept())</code>
+    </div>
+    <div class="card">
+      <div class="label">Browser Confirm Dialog</div>
+      <button onclick="const ok=confirm('Do you want to proceed?'); report(this,'Confirm result: '+ok);">Show Confirm</button>
+      <code>page.on('dialog', dialog =&gt; dialog.accept())  // or dialog.dismiss()</code>
+    </div>
+    <div class="card">
+      <div class="label">Browser Prompt Dialog</div>
+      <button onclick="const name=prompt('Enter your name:'); report(this,'Prompt result: '+name);">Show Prompt</button>
+      <code>page.on('dialog', dialog =&gt; dialog.accept('Sivashankar'))</code>
+    </div>
+    <div class="card">
+      <div class="label">New Tab / Window Popup</div>
+      <a href="https://playwright.dev" target="_blank" rel="noopener">Open New Tab</a>
+      <code>const [popup] = await Promise.all([context.waitForEvent('page'), link.click()])</code>
+    </div>
+    <div class="card">
+      <div class="label">File Download</div>
+      <a id="downloadLink" download="sample-download.txt" href="data:text/plain;charset=utf-8,Hello%20from%20Playwright%20Practice%20Lab!">Download Sample File</a>
+      <code>const [download] = await Promise.all([page.waitForEvent('download'), link.click()])</code>
+    </div>
+    <div class="card">
+      <div class="label">File Upload (direct input)</div>
+      <label for="fileUpload">Upload File</label><br>
+      <input type="file" id="fileUpload" aria-label="Upload File" onchange="report(this,'Selected file: '+(this.files[0]?this.files[0].name:'none'))">
+      <code>await page.getByLabel('Upload File').setInputFiles('path/to/file.txt')</code>
+    </div>
+    <div class="card">
+      <div class="label">File Upload (hidden input triggered via styled button)</div>
+      <input type="file" id="hiddenFileInput" style="display:none" onchange="report(this,'Selected file: '+(this.files[0]?this.files[0].name:'none'))">
+      <button onclick="document.getElementById('hiddenFileInput').click()">Choose File to Upload</button>
+      <code>const [chooser] = await Promise.all([page.waitForEvent('filechooser'), button.click()]);
+await chooser.setFiles('path/to/file.txt');</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 2: getByLabel / getByPlaceholder / getByText / etc.       -->
+  <!-- ============================================================ -->
+  <div id="panel-other" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-other">
+
+    <h2>getByLabel — associates an input with its &lt;label&gt;</h2>
+    <div class="card">
+      <div class="label">Username Field (label + for/id association)</div>
+      <label for="username">Username</label><br>
+      <input type="text" id="username">
+      <code>getByLabel('Username')</code>
+    </div>
+    <div class="card">
+      <div class="label">Password Field (label wraps the input)</div>
+      <label>Password <input type="password"></label>
+      <code>getByLabel('Password')</code>
+    </div>
+    <div class="card">
+      <div class="label">Email Field (aria-labelledby, no visual &lt;label&gt; tag)</div>
+      <span id="email-label">Email Address</span><br>
+      <input type="text" aria-labelledby="email-label">
+      <code>getByLabel('Email Address')</code>
+    </div>
+
+    <h2>getByPlaceholder — matches the placeholder attribute</h2>
+    <div class="card">
+      <div class="label">Email Input</div>
+      <input type="text" placeholder="Enter your email">
+      <code>getByPlaceholder('Enter your email')</code>
+    </div>
+    <div class="card">
+      <div class="label">Product Search Input</div>
+      <input type="text" placeholder="Search products...">
+      <code>getByPlaceholder('Search products...')</code>
+    </div>
+
+    <h2>getByText — matches visible text content</h2>
+    <div class="card">
+      <div class="label">Welcome Message (simple text)</div>
+      <p style="margin:0;">Welcome to our platform</p>
+      <code>getByText('Welcome to our platform')</code>
+    </div>
+    <div class="card">
+      <div class="label">Empty State Message</div>
+      <span>No results found</span>
+      <code>getByText('No results found')</code>
+    </div>
+    <div class="card">
+      <div class="label">Order Total (substring vs exact)</div>
+      <div>Total: $50.00</div>
+      <code>getByText('Total', { exact: false })  // substring match
+getByText('Total: $50.00', { exact: true })  // full match</code>
+    </div>
+
+    <h2>getByTestId — matches data-testid attribute</h2>
+    <div class="card">
+      <div class="label">User Profile Card</div>
+      <div data-testid="user-profile-card" style="padding:10px;border:1px dashed #000;">Sivashankar · Senior SDET</div>
+      <code>getByTestId('user-profile-card')</code>
+    </div>
+    <div class="card">
+      <div class="label">Checkout Button</div>
+      <button data-testid="checkout-btn">Checkout</button>
+      <code>getByTestId('checkout-btn')</code>
+    </div>
+
+    <h2>getByTitle — matches the title attribute (tooltip text)</h2>
+    <div class="card">
+      <div class="label">Required Field Marker</div>
+      <label>Full Name <span title="This field is required">*</span></label>
+      <code>getByTitle('This field is required')</code>
+    </div>
+    <div class="card">
+      <div class="label">HTML Abbreviation</div>
+      <abbr title="Hypertext Markup Language">HTML</abbr>
+      <code>getByTitle('Hypertext Markup Language')</code>
+    </div>
+
+    <h2>getByAltText — matches an image's alt attribute</h2>
+    <div class="card">
+      <div class="label">Product Thumbnail</div>
+      <img src="https://placehold.co/60x60/ffffff/000000?text=P1" alt="Product thumbnail image">
+      <code>getByAltText('Product thumbnail image')</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 3: ALL ROLES - one section per role                       -->
+  <!-- ============================================================ -->
+  <div id="panel-allroles" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-allroles">
+    <h2>All getByRole Roles &mdash; 82 sections</h2>
+    <p style="color:#64748b;font-size:13px;margin-top:0;">One section per role. Each has a live element, the exact locator, and a short note. Interact with an element to see the confirmation message.</p>
+    <div class="card">
+      <div class="label">1. role = "button"</div>
+      <div class="row"><button>Submit Order</button></div>
+      <code>getByRole('button', { name: 'Submit Order' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Clickable button. Options: pressed, expanded, disabled.</div>
+    </div>
+    <div class="card">
+      <div class="label">2. role = "link"</div>
+      <div class="row"><a href="#">My Account</a></div>
+      <code>getByRole('link', { name: 'My Account' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Only <a> with href gets the link role.</div>
+    </div>
+    <div class="card">
+      <div class="label">3. role = "checkbox"</div>
+      <div class="row"><input type="checkbox" id="r_tos"><label for="r_tos">Accept Terms</label></div>
+      <code>getByRole('checkbox', { name: 'Accept Terms', checked: false })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Supports checked.</div>
+    </div>
+    <div class="card">
+      <div class="label">4. role = "radio"</div>
+      <div class="row"><input type="radio" name="r_pay" id="r_card"><label for="r_card">Credit Card</label> <input type="radio" name="r_pay" id="r_upi"><label for="r_upi">UPI</label></div>
+      <code>getByRole('radio', { name: 'Credit Card' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">One-of-many. Supports checked.</div>
+    </div>
+    <div class="card">
+      <div class="label">5. role = "textbox"</div>
+      <div class="row"><label for="r_email">Email</label> <input type="text" id="r_email"></div>
+      <code>getByRole('textbox', { name: 'Email' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">text input / textarea.</div>
+    </div>
+    <div class="card">
+      <div class="label">6. role = "searchbox"</div>
+      <div class="row"><input type="search" aria-label="Site Search"></div>
+      <code>getByRole('searchbox', { name: 'Site Search' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">input type=search.</div>
+    </div>
+    <div class="card">
+      <div class="label">7. role = "combobox"</div>
+      <div class="row"><label for="r_country">Country</label> <select id="r_country"><option>India</option><option>USA</option><option>UAE</option></select></div>
+      <code>getByRole('combobox', { name: 'Country' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Native <select>. Supports expanded for custom.</div>
+    </div>
+    <div class="card">
+      <div class="label">8. role = "listbox"</div>
+      <div class="row"><div role="listbox" aria-label="Colour" class="listbox"><div role="option" aria-selected="true" onclick="selectOption(this)">Red</div><div role="option" aria-selected="false" onclick="selectOption(this)">Blue</div></div></div>
+      <code>getByRole('listbox', { name: 'Colour' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Custom select container.</div>
+    </div>
+    <div class="card">
+      <div class="label">9. role = "option"</div>
+      <div class="row">(inside the listbox above)</div>
+      <code>getByRole('option', { name: 'Red', selected: true })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Item in a listbox. Supports selected.</div>
+    </div>
+    <div class="card">
+      <div class="label">10. role = "spinbutton"</div>
+      <div class="row"><label for="r_qty">Quantity</label> <input type="number" id="r_qty" value="1" min="1" max="9"></div>
+      <code>getByRole('spinbutton', { name: 'Quantity' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">input type=number.</div>
+    </div>
+    <div class="card">
+      <div class="label">11. role = "slider"</div>
+      <div class="row"><label for="r_vol">Volume</label> <input type="range" id="r_vol" min="0" max="100" value="50"></div>
+      <code>getByRole('slider', { name: 'Volume' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">input type=range.</div>
+    </div>
+    <div class="card">
+      <div class="label">12. role = "switch"</div>
+      <div class="row"><button role="switch" aria-checked="false" aria-label="Dark Mode" onclick="const c=this.getAttribute('aria-checked')=='true'?'false':'true';this.setAttribute('aria-checked',c);report(this,'Dark Mode → checked='+c);">Toggle</button></div>
+      <code>getByRole('switch', { name: 'Dark Mode', checked: false })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">On/off toggle. Supports checked.</div>
+    </div>
+    <div class="card">
+      <div class="label">13. role = "heading"</div>
+      <div class="row"><h3 style="margin:0;font-size:16px;">Checkout Page</h3></div>
+      <code>getByRole('heading', { name: 'Checkout Page', level: 3 })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">h1–h6. Supports level.</div>
+    </div>
+    <div class="card">
+      <div class="label">14. role = "paragraph"</div>
+      <div class="row"><p style="margin:0;">Your order has shipped.</p></div>
+      <code>getByRole('paragraph')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">A <p> block of text.</div>
+    </div>
+    <div class="card">
+      <div class="label">15. role = "img"</div>
+      <div class="row"><img src="https://placehold.co/60x60/6366f1/ffffff?text=Logo" alt="Company Logo"></div>
+      <code>getByRole('img', { name: 'Company Logo' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Name comes from alt text.</div>
+    </div>
+    <div class="card">
+      <div class="label">16. role = "code"</div>
+      <div class="row"><code style="display:inline;background:#eef2ff;color:#4338ca;padding:2px 6px;border-radius:4px;">npx playwright test</code></div>
+      <code>getByRole('code')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Inline <code> element.</div>
+    </div>
+    <div class="card">
+      <div class="label">17. role = "strong"</div>
+      <div class="row"><strong>Important notice</strong></div>
+      <code>getByRole('strong')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><strong> emphasized text.</div>
+    </div>
+    <div class="card">
+      <div class="label">18. role = "emphasis"</div>
+      <div class="row"><em>Read carefully</em></div>
+      <code>getByRole('emphasis')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><em> italic emphasis.</div>
+    </div>
+    <div class="card">
+      <div class="label">19. role = "list"</div>
+      <div class="row"><ul style="margin:0;"><li>Wireless Mouse</li><li>Keyboard</li></ul></div>
+      <code>getByRole('list')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><ul>/<ol> container.</div>
+    </div>
+    <div class="card">
+      <div class="label">20. role = "listitem"</div>
+      <div class="row">(the <li> items in the list above)</div>
+      <code>getByRole('listitem', { name: 'Keyboard' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><li>. Supports level for nesting.</div>
+    </div>
+    <div class="card">
+      <div class="label">21. role = "table"</div>
+      <div class="row"><table class="demo-table"><tr><th>Product</th><th>Price</th></tr><tr><td>Mouse</td><td>799</td></tr></table></div>
+      <code>getByRole('table', { name: 'Orders' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><table> container.</div>
+    </div>
+    <div class="card">
+      <div class="label">22. role = "row"</div>
+      <div class="row">(each <tr> in the table above)</div>
+      <code>getByRole('row').filter({ hasText: 'Mouse' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">A <tr> table row.</div>
+    </div>
+    <div class="card">
+      <div class="label">23. role = "columnheader"</div>
+      <div class="row">(the <th> cells above)</div>
+      <code>getByRole('columnheader', { name: 'Product' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><th> header cell.</div>
+    </div>
+    <div class="card">
+      <div class="label">24. role = "rowheader"</div>
+      <div class="row"><table class="demo-table"><tr><th scope="row">Total</th><td>₹799</td></tr></table></div>
+      <code>getByRole('rowheader', { name: 'Total' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><th scope=row> row header.</div>
+    </div>
+    <div class="card">
+      <div class="label">25. role = "cell"</div>
+      <div class="row">(the <td> cells above)</div>
+      <code>getByRole('cell', { name: 'Mouse' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><td> data cell.</div>
+    </div>
+    <div class="card">
+      <div class="label">26. role = "rowgroup"</div>
+      <div class="row">(the <thead>/<tbody> wrapping table rows)</div>
+      <code>getByRole('rowgroup')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><thead>, <tbody>, <tfoot>.</div>
+    </div>
+    <div class="card">
+      <div class="label">27. role = "grid"</div>
+      <div class="row"><div role="grid" aria-label="Editable Grid" style="border:1px solid #c7d2fe;border-radius:6px;padding:6px;"><div role="row"><span role="gridcell">Cell A</span></div></div></div>
+      <code>getByRole('grid', { name: 'Editable Grid' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Interactive data grid.</div>
+    </div>
+    <div class="card">
+      <div class="label">28. role = "gridcell"</div>
+      <div class="row">(the cell inside the grid above)</div>
+      <code>getByRole('gridcell', { name: 'Cell A' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Cell in a grid. Supports selected.</div>
+    </div>
+    <div class="card">
+      <div class="label">29. role = "tab"</div>
+      <div class="row"><div role="tablist" class="subtablist"><button role="tab" aria-selected="true">Profile</button><button role="tab" aria-selected="false">Settings</button></div></div>
+      <code>getByRole('tab', { name: 'Profile', selected: true })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">A tab. Supports selected.</div>
+    </div>
+    <div class="card">
+      <div class="label">30. role = "tablist"</div>
+      <div class="row">(the tablist container above)</div>
+      <code>getByRole('tablist', { name: 'Sections' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Wraps tab elements.</div>
+    </div>
+    <div class="card">
+      <div class="label">31. role = "tabpanel"</div>
+      <div class="row"><div role="tabpanel" class="subtabpanel">Profile content shown here.</div></div>
+      <code>getByRole('tabpanel')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">The panel a tab reveals.</div>
+    </div>
+    <div class="card">
+      <div class="label">32. role = "menu"</div>
+      <div class="row"><div role="menu" style="border:1px solid #c7d2fe;border-radius:6px;padding:4px;display:inline-block;"><button role="menuitem">Edit</button> <button role="menuitem">Logout</button></div></div>
+      <code>getByRole('menu')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Dropdown / app menu.</div>
+    </div>
+    <div class="card">
+      <div class="label">33. role = "menuitem"</div>
+      <div class="row">(the items inside the menu above)</div>
+      <code>getByRole('menuitem', { name: 'Logout' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">An item in a menu.</div>
+    </div>
+    <div class="card">
+      <div class="label">34. role = "menubar"</div>
+      <div class="row"><div role="menubar" style="border:1px solid #c7d2fe;border-radius:6px;padding:4px;display:inline-block;"><button role="menuitem">File</button> <button role="menuitem">Edit</button></div></div>
+      <code>getByRole('menubar')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Persistent horizontal menu.</div>
+    </div>
+    <div class="card">
+      <div class="label">35. role = "menuitemcheckbox"</div>
+      <div class="row"><button role="menuitemcheckbox" aria-checked="true" onclick="const c=this.getAttribute('aria-checked')=='true'?'false':'true';this.setAttribute('aria-checked',c);report(this,'Word Wrap → checked='+c);">Word Wrap</button></div>
+      <code>getByRole('menuitemcheckbox', { name: 'Word Wrap', checked: true })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Checkable menu item.</div>
+    </div>
+    <div class="card">
+      <div class="label">36. role = "menuitemradio"</div>
+      <div class="row"><button role="menuitemradio" aria-checked="true">Medium</button></div>
+      <code>getByRole('menuitemradio', { name: 'Medium', checked: true })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Radio-style menu item.</div>
+    </div>
+    <div class="card">
+      <div class="label">37. role = "dialog"</div>
+      <div class="row"><div role="dialog" aria-label="Confirm Delete" style="border:1px solid #c7d2fe;border-radius:8px;padding:12px;"><p style="margin:0 0 8px;">Delete this item?</p><button>Confirm</button></div></div>
+      <code>getByRole('dialog', { name: 'Confirm Delete' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Modal window.</div>
+    </div>
+    <div class="card">
+      <div class="label">38. role = "alertdialog"</div>
+      <div class="row"><div role="alertdialog" aria-label="Unsaved Changes" style="border:1px solid #fca5a5;background:#fef2f2;border-radius:8px;padding:12px;">You have unsaved changes. <button>Discard</button></div></div>
+      <code>getByRole('alertdialog', { name: 'Unsaved Changes' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Urgent dialog needing response.</div>
+    </div>
+    <div class="card">
+      <div class="label">39. role = "tooltip"</div>
+      <div class="row"><span role="tooltip" style="background:#111827;color:#fff;padding:3px 8px;border-radius:4px;">Click to view help</span></div>
+      <code>getByRole('tooltip')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Hover/focus popup.</div>
+    </div>
+    <div class="card">
+      <div class="label">40. role = "alert"</div>
+      <div class="row"><div role="alert">Error: Invalid email address</div></div>
+      <code>getByRole('alert')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Urgent live message.</div>
+    </div>
+    <div class="card">
+      <div class="label">41. role = "status"</div>
+      <div class="row"><div role="status">Saved</div></div>
+      <code>getByRole('status')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Advisory, non-urgent message.</div>
+    </div>
+    <div class="card">
+      <div class="label">42. role = "progressbar"</div>
+      <div class="row"><progress role="progressbar" aria-label="Upload" value="70" max="100"></progress></div>
+      <code>getByRole('progressbar', { name: 'Upload' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Task completion indicator.</div>
+    </div>
+    <div class="card">
+      <div class="label">43. role = "meter"</div>
+      <div class="row"><meter aria-label="Disk Usage" value="0.6" min="0" max="1"></meter></div>
+      <code>getByRole('meter', { name: 'Disk Usage' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Gauge within a known range.</div>
+    </div>
+    <div class="card">
+      <div class="label">44. role = "timer"</div>
+      <div class="row"><div role="timer">00:30</div></div>
+      <code>getByRole('timer')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Elapsed / remaining time.</div>
+    </div>
+    <div class="card">
+      <div class="label">45. role = "log"</div>
+      <div class="row"><div role="log" style="border:1px solid #c7d2fe;border-radius:6px;padding:6px;">Chat: message received</div></div>
+      <code>getByRole('log')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Live region for appended messages.</div>
+    </div>
+    <div class="card">
+      <div class="label">46. role = "marquee"</div>
+      <div class="row"><div role="marquee">Breaking: markets up 2%</div></div>
+      <code>getByRole('marquee')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Scrolling live text.</div>
+    </div>
+    <div class="card">
+      <div class="label">47. role = "banner"</div>
+      <div class="row"><header style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;">Site Header</header></div>
+      <code>getByRole('banner')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><header> landmark.</div>
+    </div>
+    <div class="card">
+      <div class="label">48. role = "navigation"</div>
+      <div class="row"><nav aria-label="Main" style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;"><a href="#">Home</a> · <a href="#">Shop</a></nav></div>
+      <code>getByRole('navigation', { name: 'Main' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><nav> landmark.</div>
+    </div>
+    <div class="card">
+      <div class="label">49. role = "main"</div>
+      <div class="row"><main style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;">Main content region</main></div>
+      <code>getByRole('main')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><main> landmark.</div>
+    </div>
+    <div class="card">
+      <div class="label">50. role = "contentinfo"</div>
+      <div class="row"><footer style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;">© 2026 Footer</footer></div>
+      <code>getByRole('contentinfo')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><footer> landmark.</div>
+    </div>
+    <div class="card">
+      <div class="label">51. role = "complementary"</div>
+      <div class="row"><aside style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;">Related links sidebar</aside></div>
+      <code>getByRole('complementary')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><aside> landmark.</div>
+    </div>
+    <div class="card">
+      <div class="label">52. role = "region"</div>
+      <div class="row"><section aria-label="Promotions" style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;">Promo region</section></div>
+      <code>getByRole('region', { name: 'Promotions' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Labeled <section> landmark.</div>
+    </div>
+    <div class="card">
+      <div class="label">53. role = "form"</div>
+      <div class="row"><form aria-label="Login" style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;"><button>Sign in</button></form></div>
+      <code>getByRole('form', { name: 'Login' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><form> landmark (needs a name).</div>
+    </div>
+    <div class="card">
+      <div class="label">54. role = "search"</div>
+      <div class="row"><form role="search" aria-label="Product Search" style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;"><input type="search" aria-label="q"></form></div>
+      <code>getByRole('search', { name: 'Product Search' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Search landmark region.</div>
+    </div>
+    <div class="card">
+      <div class="label">55. role = "tree"</div>
+      <div class="row"><div role="tree" aria-label="Files" style="border:1px solid #c7d2fe;border-radius:6px;padding:6px;"><div role="treeitem" aria-expanded="false">src</div></div></div>
+      <code>getByRole('tree', { name: 'Files' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Hierarchical expandable list.</div>
+    </div>
+    <div class="card">
+      <div class="label">56. role = "treeitem"</div>
+      <div class="row">(the item inside the tree above)</div>
+      <code>getByRole('treeitem', { name: 'src', expanded: false })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Node in a tree. Supports expanded/selected.</div>
+    </div>
+    <div class="card">
+      <div class="label">57. role = "toolbar"</div>
+      <div class="row"><div role="toolbar" aria-label="Formatting" style="border:1px solid #c7d2fe;border-radius:6px;padding:4px;display:inline-block;"><button>Bold</button> <button>Italic</button></div></div>
+      <code>getByRole('toolbar', { name: 'Formatting' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Group of controls.</div>
+    </div>
+    <div class="card">
+      <div class="label">58. role = "separator"</div>
+      <div class="row"><hr></div>
+      <code>getByRole('separator')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><hr> divider.</div>
+    </div>
+    <div class="card">
+      <div class="label">59. role = "blockquote"</div>
+      <div class="row"><blockquote style="margin:0;border-left:3px solid #c7d2fe;padding-left:10px;">A quoted passage.</blockquote></div>
+      <code>getByRole('blockquote')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><blockquote> element.</div>
+    </div>
+    <div class="card">
+      <div class="label">60. role = "caption"</div>
+      <div class="row"><table class="demo-table"><caption>Sales Table</caption><tr><td>Data</td></tr></table></div>
+      <code>getByRole('caption')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><caption> of a table/figure.</div>
+    </div>
+    <div class="card">
+      <div class="label">61. role = "figure"</div>
+      <div class="row"><figure style="margin:0;">Chart <figcaption>Fig 1: revenue</figcaption></figure></div>
+      <code>getByRole('figure')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><figure> grouping.</div>
+    </div>
+    <div class="card">
+      <div class="label">62. role = "group"</div>
+      <div class="row"><fieldset style="border:1px solid #c7d2fe;border-radius:6px;"><legend>Preferences</legend><input type="checkbox" id="r_g1"><label for="r_g1">Email me</label></fieldset></div>
+      <code>getByRole('group', { name: 'Preferences' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><fieldset> / grouping container.</div>
+    </div>
+    <div class="card">
+      <div class="label">63. role = "article"</div>
+      <div class="row"><article style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;">A self-contained blog post.</article></div>
+      <code>getByRole('article')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;"><article> self-contained content.</div>
+    </div>
+    <div class="card">
+      <div class="label">64. role = "document"</div>
+      <div class="row">(the page body / role=document region)</div>
+      <code>getByRole('document')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">A document reading region.</div>
+    </div>
+    <div class="card">
+      <div class="label">65. role = "scrollbar"</div>
+      <div class="row">
+        <div role="scrollbar" aria-controls="panel-allroles" aria-orientation="vertical" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" aria-label="Vertical Scrollbar" tabindex="0" style="width:14px;height:80px;background:#e0e7ff;border-radius:7px;position:relative;">
+          <div style="position:absolute;top:40%;left:1px;width:12px;height:24px;background:#6366f1;border-radius:6px;"></div>
+        </div>
+      </div>
+      <code>getByRole('scrollbar', { name: 'Vertical Scrollbar' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Scroll thumb of a scrollable region. Supports aria-valuenow/min/max.</div>
+    </div>
+    <div class="card">
+      <div class="label">66. role = "radiogroup"</div>
+      <div class="row" role="radiogroup" aria-label="Shipping Speed">
+        <input type="radio" name="r_ship" id="r_std" checked><label for="r_std">Standard</label>
+        <input type="radio" name="r_ship" id="r_exp"><label for="r_exp">Express</label>
+      </div>
+      <code>getByRole('radiogroup', { name: 'Shipping Speed' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Container that groups a set of related radio buttons.</div>
+    </div>
+    <div class="card">
+      <div class="label">67. role = "treegrid"</div>
+      <div class="row">
+        <div role="treegrid" aria-label="File Explorer" style="border:1px solid #c7d2fe;border-radius:6px;padding:6px;">
+          <div role="row"><span role="gridcell" aria-expanded="true">&#128193; src</span></div>
+          <div role="row"><span role="gridcell" style="padding-left:16px;">&#128196; index.ts</span></div>
+        </div>
+      </div>
+      <code>getByRole('treegrid', { name: 'File Explorer' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">A grid whose rows can be expanded/collapsed, like a tree.</div>
+    </div>
+    <div class="card">
+      <div class="label">68. role = "application"</div>
+      <div class="row">
+        <div role="application" aria-label="Drawing Canvas" style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;">Interactive canvas region (keyboard handled by the app, not the browser).</div>
+      </div>
+      <code>getByRole('application', { name: 'Drawing Canvas' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Opts a region out of standard browser/assistive-tech navigation. Use sparingly.</div>
+    </div>
+    <div class="card">
+      <div class="label">69. role = "definition"</div>
+      <div class="row"><dl style="margin:0;"><dt>SDET</dt><dd role="definition">Software Development Engineer in Test</dd></dl></div>
+      <code>getByRole('definition')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">The description/definition of a term. Implicit on &lt;dd&gt;.</div>
+    </div>
+    <div class="card">
+      <div class="label">70. role = "deletion"</div>
+      <div class="row"><p style="margin:0;">Price: <del>$50.00</del> <ins>$40.00</ins></p></div>
+      <code>getByRole('deletion')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Content that was deleted. Implicit on &lt;del&gt;.</div>
+    </div>
+    <div class="card">
+      <div class="label">71. role = "insertion"</div>
+      <div class="row">(the &lt;ins&gt; element in the price example above)</div>
+      <code>getByRole('insertion')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Content that was inserted/added. Implicit on &lt;ins&gt;.</div>
+    </div>
+    <div class="card">
+      <div class="label">72. role = "directory"</div>
+      <div class="row"><ul role="directory" style="margin:0;"><li>Alice Johnson</li><li>Bob Smith</li></ul></div>
+      <code>getByRole('directory')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Deprecated in ARIA 1.2 — a list of references (e.g. a contact list). Prefer "list" in new markup.</div>
+    </div>
+    <div class="card">
+      <div class="label">73. role = "feed"</div>
+      <div class="row">
+        <div role="feed" aria-label="News Feed" style="border:1px solid #c7d2fe;border-radius:6px;padding:6px;">
+          <article>Playwright 1.50 released.</article>
+          <article>New locator strategies announced.</article>
+        </div>
+      </div>
+      <code>getByRole('feed', { name: 'News Feed' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">A scrollable list of articles, e.g. a social/news feed.</div>
+    </div>
+    <div class="card">
+      <div class="label">74. role = "generic"</div>
+      <div class="row"><span>Plain span with no semantic role</span></div>
+      <code>getByRole('generic')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Implicit fallback role for a &lt;div&gt;/&lt;span&gt; that carries no other semantic meaning. Rarely queried directly — prefer text or testid.</div>
+    </div>
+    <div class="card">
+      <div class="label">75. role = "math"</div>
+      <div class="row"><div role="math" aria-label="Quadratic Formula">x = (-b &plusmn; &radic;(b&sup2;-4ac)) / 2a</div></div>
+      <code>getByRole('math', { name: 'Quadratic Formula' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">A mathematical expression.</div>
+    </div>
+    <div class="card">
+      <div class="label">76. role = "none"</div>
+      <div class="row"><ul role="none" style="margin:0;padding:0;list-style:none;"><li>Item without list semantics</li></ul></div>
+      <code>getByRole('none')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Strips an element's implicit semantics (here the &lt;ul&gt; no longer exposes role "list"). Synonym: "presentation".</div>
+    </div>
+    <div class="card">
+      <div class="label">77. role = "presentation"</div>
+      <div class="row"><img src="https://placehold.co/60x60/94a3b8/ffffff?text=deco" role="presentation" alt=""></div>
+      <code>getByRole('presentation')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Same effect as "none" — marks a purely decorative element, removing it from the accessibility tree.</div>
+    </div>
+    <div class="card">
+      <div class="label">78. role = "note"</div>
+      <div class="row"><div role="note" style="border:1px solid #c7d2fe;border-radius:6px;padding:8px;">Note: prices exclude tax.</div></div>
+      <code>getByRole('note')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Parenthetic or supplementary content.</div>
+    </div>
+    <div class="card">
+      <div class="label">79. role = "subscript"</div>
+      <div class="row">H<sub>2</sub>O</div>
+      <code>getByRole('subscript')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Implicit on &lt;sub&gt;.</div>
+    </div>
+    <div class="card">
+      <div class="label">80. role = "superscript"</div>
+      <div class="row">E = mc<sup>2</sup></div>
+      <code>getByRole('superscript')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Implicit on &lt;sup&gt;.</div>
+    </div>
+    <div class="card">
+      <div class="label">81. role = "term"</div>
+      <div class="row">(the &lt;dt&gt; "SDET" in the definition example above)</div>
+      <code>getByRole('term', { name: 'SDET' })</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">The term being defined. Implicit on &lt;dt&gt;.</div>
+    </div>
+    <div class="card">
+      <div class="label">82. role = "time"</div>
+      <div class="row"><time datetime="2026-08-22">August 22, 2026</time></div>
+      <code>getByRole('time')</code>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Implicit on &lt;time&gt;. Represents a specific point or duration in time.</div>
+    </div>
+  </div>
+
+
+<script>
+function showMainTab(name){
+  var tabs = ['role','other','allroles'];
+  tabs.forEach(function(t){
+    var panel = document.getElementById('panel-' + t);
+    var btn = document.getElementById('maintab-' + t);
+    if(panel) panel.classList.toggle('active', t===name);
+    if(btn) btn.setAttribute('aria-selected', t===name);
+  });
+}
+function toggleMenu(){
+  const menu = document.getElementById('optionsMenu');
+  const btn = document.getElementById('optionsBtn');
+  const open = !menu.classList.contains('open');
+  menu.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+function closeMenu(){
+  document.getElementById('optionsMenu').classList.remove('open');
+  document.getElementById('optionsBtn').setAttribute('aria-expanded','false');
+}
+function selectOption(el){
+  el.parentElement.querySelectorAll('[role=option]').forEach(o=>o.setAttribute('aria-selected','false'));
+  el.setAttribute('aria-selected','true');
+}
+function showSubTab(name){
+  document.getElementById('sub-profile').style.display = name==='profile' ? 'block':'none';
+  document.getElementById('sub-settings').style.display = name==='settings' ? 'block':'none';
+  document.getElementById('mt-profile').setAttribute('aria-selected', name==='profile');
+  document.getElementById('mt-settings').setAttribute('aria-selected', name==='settings');
+}
+
+/* ---------- Universal action reporter ---------- */
+
+// 1. Give every card a message slot (skip the confirm dialog which lives inside a card)
+document.querySelectorAll('.card').forEach(card=>{
+  const msg = document.createElement('div');
+  msg.className = 'msg';
+  card.appendChild(msg);
+});
+
+// Find the .msg slot belonging to the card that contains this element
+function slotFor(el){
+  const card = el.closest('.card');
+  return card ? card.querySelector('.msg') : null;
+}
+
+// Print a message into the right card
+function report(el, text){
+  const slot = slotFor(el);
+  if(!slot) return;
+  slot.textContent = '✔ ' + text;
+  slot.classList.add('show');
+}
+
+// Short readable name for an element
+function describe(el){
+  const tag = el.tagName.toLowerCase();
+  const role = el.getAttribute('role');
+  const aria = el.getAttribute('aria-label');
+  const txt = (el.textContent || '').trim().replace(/\s+/g,' ').slice(0,30);
+  if(el.tagName === 'INPUT'){
+    const type = el.type;
+    const name = aria || el.placeholder || el.id || type;
+    return type + ' "' + name + '"';
+  }
+  if(tag === 'select') return 'dropdown "' + (aria || el.id) + '"';
+  if(role) return role + ' "' + (aria || txt) + '"';
+  if(tag === 'a') return 'link "' + txt + '"';
+  if(tag === 'button') return 'button "' + txt + '"';
+  if(tag === 'img') return 'image "' + (el.alt || '') + '"';
+  return tag + ' "' + txt + '"';
+}
+
+// 2. CLICK — buttons, links, options, images, headings, text, etc.
+document.addEventListener('click', function(e){
+  const el = e.target.closest('button, a, [role=option], [role=menuitem], [role=tab], img, [data-testid], abbr, [title], h1, h2, h3, li, td, th, p, span, div.card > div:not(.label):not(.msg)');
+  if(!el) return;
+  if(el.classList && (el.classList.contains('card') || el.classList.contains('label') || el.classList.contains('msg'))) return;
+  // links: don't actually navigate away (but let real download/target=_blank links work)
+  if(el.tagName === 'A' && el.getAttribute('href') === '#') e.preventDefault();
+  report(el, 'Clicked ' + describe(el));
+}, true);
+
+// 2b. FOCUS — highlight when a text field is focused (before typing)
+document.addEventListener('focus', function(e){
+  const el = e.target;
+  if(el.tagName === 'INPUT' && (el.type==='text'||el.type==='search'||el.type==='password'||el.type==='number')){
+    if(!el.disabled) report(el, 'Focused ' + describe(el));
+  }
+}, true);
+
+// 3. CHANGE — checkboxes, radios, selects, range
+document.addEventListener('change', function(e){
+  const el = e.target;
+  if(el.type === 'checkbox'){
+    report(el, describe(el) + ' → ' + (el.checked ? 'CHECKED' : 'unchecked'));
+  } else if(el.type === 'radio'){
+    report(el, 'Selected ' + describe(el));
+  } else if(el.tagName === 'SELECT' && el.multiple){
+    const chosen = Array.from(el.selectedOptions).map(o=>o.value).join(', ') || 'none';
+    report(el, describe(el) + ' → selected [' + chosen + ']');
+  } else if(el.tagName === 'SELECT'){
+    report(el, describe(el) + ' → selected "' + el.value + '"');
+  } else if(el.type === 'range'){
+    report(el, describe(el) + ' → value ' + el.value);
+  } else if(el.type === 'number'){
+    report(el, describe(el) + ' → ' + el.value);
+  }
+});
+
+// 4. INPUT — typing into text fields (live)
+document.addEventListener('input', function(e){
+  const el = e.target;
+  if(el.type === 'text' || el.type === 'search' || el.type === 'password'){
+    report(el, 'Typed into ' + describe(el) + ' → "' + el.value + '"');
+  } else if(el.type === 'range'){
+    report(el, describe(el) + ' → value ' + el.value);
+  }
+});
+</script>
+
+</body>
+</html>

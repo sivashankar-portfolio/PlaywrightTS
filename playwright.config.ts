@@ -31,7 +31,10 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
 
-    testIdAttribute:'user-id'
+    testIdAttribute:'user-id',
+
+    /* Slow down actions so headed runs are visible to the naked eye. */
+    launchOptions: { slowMo: 500 },
   },
 
   /* Configure projects for major browsers */
