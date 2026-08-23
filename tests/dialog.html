@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Playwright Dialog Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    button { margin: 10px 0; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Playwright Dialog Demo</h1>
+
+  <!-- Buttons to trigger dialogs -->
+  <button id="alertBtn">Show Alert</button>
+  <button id="confirmBtn">Show Confirm</button>
+  <button id="promptBtn">Show Prompt</button>
+  <button id="printBtn">Print Page</button>
+  <button id="beforeUnloadBtn">Close Page (beforeunload)</button>
+
+  <script>
+    // Alert dialog
+    document.getElementById('alertBtn').addEventListener('click', () => {
+      alert('This is an alert!');
+    });
+
+    // Confirm dialog
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+      const result = confirm('Do you confirm this action?');
+      console.log('Confirm result:', result);
+    });
+
+    // Prompt dialog
+    document.getElementById('promptBtn').addEventListener('click', () => {
+      const input = prompt('Please enter your name:', 'John Doe');
+      console.log('Prompt input:', input);
+    });
+
+    // Print dialog
+    document.getElementById('printBtn').addEventListener('click', () => {
+      window.print();
+    });
+
+    // Beforeunload dialog
+    document.getElementById('beforeUnloadBtn').addEventListener('click', () => {
+      window.addEventListener('beforeunload', (e) => {
+        e.preventDefault();
+        e.returnValue = ''; // Standard way to trigger the beforeunload dialog
+      });
+      // window.close();
+    });
+  </script>
+</body>
+</html>

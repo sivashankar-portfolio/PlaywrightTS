@@ -31,7 +31,7 @@ test('Practise getByRole',async ({page})=>{
 
 test('Practise handling popups, dialogs, downloads and uploads', async ({ page, context }) => {
 
-  await page.goto("http://127.0.0.1:5500/playwright-locator-practice-simple_1.html");
+  await page.goto("http://127.0.0.1:5500/tests/playwright-locator-practice-simple_1.html");
 
   // ------------------------------------------------------------------
   // 1) JS DIALOGS: alert / confirm / prompt
@@ -82,13 +82,13 @@ test('Practise handling popups, dialogs, downloads and uploads', async ({ page, 
   // event BEFORE clicking, then Promise.all both the wait and the click
   // together so neither call can race ahead of the other.
   // ------------------------------------------------------------------
-  const [popup] = await Promise.all([
+  const [newtab] = await Promise.all([
     context.waitForEvent('page'),                         // starts waiting first
     page.getByRole('link', { name: 'Open New Tab' }).click(), // triggers the popup
   ]);
-  await popup.waitForLoadState();
-  expect(popup.url()).toContain('playwright.dev');
-  await popup.close(); // clean up the extra tab so it doesn't leak into other tests
+  await newtab.waitForLoadState();
+  expect(newtab.url()).toContain('playwright.dev');
+  await newtab.close(); // clean up the extra tab so it doesn't leak into other tests
 
   // ------------------------------------------------------------------
   // 3) DOWNLOADS

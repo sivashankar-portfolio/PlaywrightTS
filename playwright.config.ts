@@ -32,7 +32,7 @@ export default defineConfig({
     trace: 'on-first-retry',
 
     testIdAttribute:'user-id',
-
+    screenshot:'on',
     /* Slow down actions so headed runs are visible to the naked eye. */
     launchOptions: { slowMo: 500 },
   },

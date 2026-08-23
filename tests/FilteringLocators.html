@@ -1,0 +1,27 @@
+<html>
+
+<body>
+
+<ul>
+  <li>
+    <h3>Product 1</h3>
+    <button>Add to cart</button>
+    <span class="status"></span>
+  </li>
+  <li>
+    <h3>Product 2</h3>
+    <button>Add to cart</button>
+    <span class="status"></span>
+  </li>
+</ul>
+
+<script>
+  document.querySelectorAll('button').forEach(button => {
+    button.addEventListener('click', () => {
+      button.nextElementSibling.textContent = 'Success';
+    });
+  });
+</script>
+</body>
+</html>
+

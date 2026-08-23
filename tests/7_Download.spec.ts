@@ -17,7 +17,7 @@ expect(downloadImage.suggestedFilename()).toContain("sampleFile");
 
 // save the downloaded file to this path to use it further
 
-await downloadImage.saveAs(path.join('test-results','downloads',downloadImage.suggestedFilename()));
+await downloadImage.saveAs(path.join('test-results','downloads',`DownloadedFile_${Date.now()}.png`));
 
 
 

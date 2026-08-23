@@ -1,0 +1,25 @@
+<html>
+
+<body>
+
+    <button style='display: none'>Invisible</button>
+    <span class="status"></span>
+
+<button>Visible</button>
+<span class="status"></span>
+
+<ul>
+    <li>apple</li>
+    <li>banana</li>
+    <li>orange</li>
+</ul>
+
+<script>
+  document.querySelectorAll('button').forEach(button => {
+    button.addEventListener('click', () => {
+      button.nextElementSibling.textContent = 'Success';
+    });
+  });
+</script>
+</body>
+</html>

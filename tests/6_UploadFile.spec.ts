@@ -21,7 +21,7 @@ await expect(page.getByText(`✔ Selected file: sample-upload.txt`)).toBeVisible
 
 test('Upload File Test using import.meta.url',async ({page})=>{
 
-await page.goto(`http://127.0.0.1:5500/playwright-locator-practice-simple_1.html`);
+await page.goto(`http://127.0.0.1:5500/tests/playwright-locator-practice-simple_1.html`);
 
 const [chooser] = await Promise.all([
     page.waitForEvent('filechooser'),

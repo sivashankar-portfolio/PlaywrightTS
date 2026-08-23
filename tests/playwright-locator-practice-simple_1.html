@@ -32,8 +32,10 @@
   .label{font-weight:bold;font-size:13px;margin-bottom:8px;color:#c026d3;}
   code{
     display:block;
-    background:#0f172a;
-    color:#5eead4;
+    background:#f8fafc;
+    color:#334155;
+    border:1px solid #e2e8f0;
+    border-left:3px solid #6366f1;
     border-radius:6px;
     padding:7px 10px;
     margin-top:8px;
@@ -52,14 +54,14 @@
   }
   button:hover{background:#4f46e5;}
   button:disabled{background:#cbd5e1;color:#64748b;cursor:not-allowed;}
-  button[aria-pressed="true"]{background:#16a34a;}
-  button[role="switch"][aria-checked="true"]{background:#16a34a;}
+  button[aria-pressed="true"]{background:#4338ca;}
+  button[role="switch"][aria-checked="true"]{background:#4338ca;}
   input[type=text],input[type=search],input[type=number],input[type=password],select{
     border:1px solid #94a3b8;border-radius:6px;padding:7px 9px;font-size:14px;background:#fff;
   }
   input:disabled{background:#e2e8f0;color:#64748b;}
   input[type=range]{accent-color:#6366f1;}
-  input[type=checkbox],input[type=radio]{accent-color:#16a34a;width:16px;height:16px;}
+  input[type=checkbox],input[type=radio]{accent-color:#6366f1;width:16px;height:16px;}
 
   /* main tabs */
   .maintabs{margin:16px 0;}
@@ -108,16 +110,29 @@
   .msg{
     margin-top:8px;
     padding:7px 10px;
-    border:1px solid #86efac;
+    border:1px solid #c7d2fe;
     border-radius:6px;
-    background:#dcfce7;
-    color:#166534;
+    background:#eef2ff;
+    color:#4338ca;
     font-weight:600;
     font-size:12.5px;
     min-height:16px;
     display:none;
   }
   .msg.show{display:block;}
+
+  /* xpath practice tab */
+  .xp-box{border:1px solid #a5b4fc;border-radius:8px;padding:10px;margin:6px 0;background:#eef2ff;}
+  .xp-box .xp-box{background:#e0e7ff;}
+  .xp-siblings{border:1px dashed #a5b4fc;border-radius:8px;padding:8px;}
+  .xp-sib{border:1px solid #c7d2fe;border-radius:6px;padding:8px 10px;margin:5px 0;background:#fff;color:#3730a3;}
+  .xp-status{border:1px solid #fca5a5;background:#fef2f2;color:#b91c1c;border-radius:6px;padding:7px 10px;display:inline-block;}
+  .xp-form-row{border:1px solid #dbe3ec;border-radius:6px;padding:8px;display:flex;gap:10px;align-items:center;}
+
+  /* shadow dom practice */
+  shadow-open-demo, shadow-closed-demo, shadow-open-list{
+    display:block;border:1px solid #a5b4fc;border-radius:8px;padding:10px;background:#eef2ff;max-width:280px;
+  }
 </style>
 </head>
 <body>
@@ -129,6 +144,8 @@
     <button class="maintab-btn" role="tab" id="maintab-role" aria-selected="true" aria-controls="panel-role" onclick="showMainTab('role')">getByRole</button>
     <button class="maintab-btn" role="tab" id="maintab-other" aria-selected="false" aria-controls="panel-other" onclick="showMainTab('other')">getByLabel / getByPlaceholder / etc.</button>
     <button class="maintab-btn" role="tab" id="maintab-allroles" aria-selected="false" aria-controls="panel-allroles" onclick="showMainTab('allroles')">All Roles (one section each)</button>
+    <button class="maintab-btn" role="tab" id="maintab-xpath" aria-selected="false" aria-controls="panel-xpath" onclick="showMainTab('xpath')">XPath (Axes &amp; Relative)</button>
+    <button class="maintab-btn" role="tab" id="maintab-shadow" aria-selected="false" aria-controls="panel-shadow" onclick="showMainTab('shadow')">Shadow DOM</button>
   </div>
 
   <!-- ============================================================ -->
@@ -982,10 +999,305 @@ getByText('Total: $50.00', { exact: true })  // full match</code>
     </div>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- TAB 4: XPath - Axis-based & Relative XPath practice           -->
+  <!-- ============================================================ -->
+  <div id="panel-xpath" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-xpath">
+    <h2>XPath Axes &amp; Relative XPath Practice</h2>
+    <p style="color:#64748b;font-size:13px;margin-top:0;">Each card gives you a small DOM fragment plus the XPath axis or function to practice on it. Click elements to see confirmation messages.</p>
+
+    <h2>Parent &amp; Child Axes</h2>
+    <div class="card">
+      <div class="label">Parent Axis — climb from a known element to its parent</div>
+      <div class="row">
+        <div class="xp-box" id="xp-parent-div">
+          <span id="xp-parent-child" onclick="report(this,'Clicked parent-axis child span')">Child Span</span>
+        </div>
+      </div>
+      <code>//span[@id='xp-parent-child']/parent::div
+//span[@id='xp-parent-child']/..</code>
+    </div>
+    <div class="card">
+      <div class="label">Child Axis — select only direct children</div>
+      <div class="row">
+        <ul id="xp-child-list">
+          <li onclick="report(this,'Clicked Apple')">Apple</li>
+          <li onclick="report(this,'Clicked Banana')">Banana</li>
+          <li onclick="report(this,'Clicked Cherry')">Cherry</li>
+        </ul>
+      </div>
+      <code>//ul[@id='xp-child-list']/child::li
+//ul[@id='xp-child-list']/li[2]   // direct child only → Banana</code>
+    </div>
+
+    <h2>Ancestor &amp; Ancestor-or-self Axes</h2>
+    <div class="card">
+      <div class="label">Ancestor Axis — walk up through every ancestor</div>
+      <div class="row">
+        <div class="xp-box" id="xp-grandparent">
+          <div class="xp-box" id="xp-parent2">
+            <span id="xp-target" onclick="report(this,'Clicked deeply nested target span')">Deeply Nested Text</span>
+          </div>
+        </div>
+      </div>
+      <code>//span[@id='xp-target']/ancestor::div
+//span[@id='xp-target']/ancestor::div[@id='xp-grandparent']</code>
+    </div>
+    <div class="card">
+      <div class="label">Ancestor-or-self Axis — includes the element itself plus every ancestor</div>
+      <div class="row">
+        <div class="xp-box" id="xp-aos-outer">
+          <p id="xp-aos-inner" onclick="report(this,'Clicked ancestor-or-self paragraph')">Ancestor-or-self target paragraph</p>
+        </div>
+      </div>
+      <code>//p[@id='xp-aos-inner']/ancestor-or-self::div
+//p[@id='xp-aos-inner']/ancestor-or-self::*[@id='xp-aos-inner']</code>
+    </div>
+
+    <h2>Descendant &amp; Descendant-or-self Axes</h2>
+    <div class="card">
+      <div class="label">Descendant Axis — every element nested inside, at any depth</div>
+      <div class="row">
+        <div class="xp-box" id="xp-descendant-root">
+          <div class="xp-box">
+            <ul><li onclick="report(this,'Clicked nested list item')">Nested List Item</li></ul>
+            <span onclick="report(this,'Clicked nested span')">Nested Span</span>
+          </div>
+        </div>
+      </div>
+      <code>//div[@id='xp-descendant-root']/descendant::li
+//div[@id='xp-descendant-root']//span</code>
+    </div>
+    <div class="card">
+      <div class="label">Descendant-or-self Axis — the element plus everything nested inside</div>
+      <div class="row">
+        <div class="xp-box" id="xp-dos-root">
+          <p onclick="report(this,'Clicked descendant-or-self paragraph')">Paragraph inside descendant-or-self demo</p>
+        </div>
+      </div>
+      <code>//div[@id='xp-dos-root']/descendant-or-self::p
+//div[@id='xp-dos-root']/descendant-or-self::node()</code>
+    </div>
+
+    <h2>Sibling Axes</h2>
+    <div class="card">
+      <div class="label">Following-sibling Axis — siblings that appear after, same parent</div>
+      <div class="row">
+        <div class="xp-siblings">
+          <div class="xp-sib" id="xp-sib-1" onclick="report(this,'Clicked Step 1')">Step 1: Login</div>
+          <div class="xp-sib" id="xp-sib-2" onclick="report(this,'Clicked Step 2')">Step 2: Address</div>
+          <div class="xp-sib" id="xp-sib-3" onclick="report(this,'Clicked Step 3')">Step 3: Payment</div>
+          <div class="xp-sib" id="xp-sib-4" onclick="report(this,'Clicked Step 4')">Step 4: Review</div>
+        </div>
+      </div>
+      <code>//div[@id='xp-sib-1']/following-sibling::div
+//div[@id='xp-sib-1']/following-sibling::div[2]   // Step 3: Payment</code>
+    </div>
+    <div class="card">
+      <div class="label">Preceding-sibling Axis — siblings that appear before, same parent</div>
+      <div class="row">
+        <div class="xp-siblings">
+          <div class="xp-sib" id="xp-sib-a" onclick="report(this,'Clicked Home tab')">Tab: Home</div>
+          <div class="xp-sib" id="xp-sib-b" onclick="report(this,'Clicked Products tab')">Tab: Products</div>
+          <div class="xp-sib" id="xp-sib-c" onclick="report(this,'Clicked About tab')">Tab: About</div>
+          <div class="xp-sib" id="xp-sib-d" onclick="report(this,'Clicked Contact tab')">Tab: Contact</div>
+        </div>
+      </div>
+      <code>//div[@id='xp-sib-d']/preceding-sibling::div
+//div[@id='xp-sib-d']/preceding-sibling::div[1]   // nearest before → Tab: About</code>
+    </div>
+
+    <h2>Document-order Axes — following &amp; preceding</h2>
+    <div class="card">
+      <div class="label">Following Axis — every node after this one, anywhere in the document</div>
+      <div class="row">
+        <div class="xp-box">
+          <span id="xp-following-start" onclick="report(this,'Clicked start marker')">Start Marker</span>
+        </div>
+        <div class="xp-box">
+          <button onclick="report(this,'Clicked button after marker')">Button After Marker</button>
+          <a href="#" onclick="report(this,'Clicked link after marker')">Link After Marker</a>
+        </div>
+      </div>
+      <code>//span[@id='xp-following-start']/following::button
+//span[@id='xp-following-start']/following::a[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Preceding Axis — every node before this one, anywhere in the document</div>
+      <div class="row">
+        <div class="xp-box">
+          <button onclick="report(this,'Clicked button before marker')">Button Before Marker</button>
+          <a href="#" onclick="report(this,'Clicked link before marker')">Link Before Marker</a>
+        </div>
+        <div class="xp-box">
+          <span id="xp-preceding-end" onclick="report(this,'Clicked end marker')">End Marker</span>
+        </div>
+      </div>
+      <code>//span[@id='xp-preceding-end']/preceding::button
+//span[@id='xp-preceding-end']/preceding::a[1]</code>
+    </div>
+
+    <h2>Self Axis &amp; Attribute Axis</h2>
+    <div class="card">
+      <div class="label">Self Axis — the current node itself, useful with a predicate</div>
+      <div class="row">
+        <p id="xp-self-target" data-role="note" onclick="report(this,'Clicked self-axis paragraph')">Self-axis demo paragraph</p>
+      </div>
+      <code>//p[@id='xp-self-target']/self::p
+//p[@id='xp-self-target']/self::*[@data-role='note']</code>
+    </div>
+    <div class="card">
+      <div class="label">Attribute Axis — select an attribute node directly</div>
+      <div class="row">
+        <input type="text" id="xp-attr-input" data-qa="email-field" placeholder="you@example.com">
+      </div>
+      <code>//input[@id='xp-attr-input']/attribute::data-qa
+//input[@data-qa='email-field']</code>
+    </div>
+
+    <h2>Relative XPath Functions — contains, starts-with, text(), normalize-space()</h2>
+    <div class="card">
+      <div class="label">contains() — partial match on an attribute or on text</div>
+      <div class="row">
+        <button id="xp-contains-btn" class="btn-primary btn-large" onclick="report(this,'Clicked Proceed to Checkout')">Proceed to Checkout</button>
+      </div>
+      <code>//button[contains(@class,'btn-primary')]
+//button[contains(text(),'Checkout')]</code>
+    </div>
+    <div class="card">
+      <div class="label">starts-with() — match the beginning of an attribute value (handles dynamic IDs)</div>
+      <div class="row">
+        <input type="text" id="xp-generated-id-8271" placeholder="Auto-generated ID field">
+      </div>
+      <code>//input[starts-with(@id,'xp-generated-id')]</code>
+    </div>
+    <div class="card">
+      <div class="label">text() — exact visible text match</div>
+      <div class="row">
+        <span onclick="report(this,'Clicked Order Confirmed')">Order Confirmed</span>
+      </div>
+      <code>//span[text()='Order Confirmed']</code>
+    </div>
+    <div class="card">
+      <div class="label">normalize-space() — collapses surrounding/extra whitespace before matching</div>
+      <div class="row">
+        <span onclick="report(this,'Clicked spaced text')">   Extra   Spaced   Text   </span>
+      </div>
+      <code>//span[normalize-space()='Extra Spaced Text']</code>
+    </div>
+
+    <h2>Position, Last &amp; Logical Operators</h2>
+    <div class="card">
+      <div class="label">position() / last() — pick items by index, including from the end</div>
+      <div class="row">
+        <ul id="xp-position-list">
+          <li onclick="report(this,'Clicked First Item')">First Item</li>
+          <li onclick="report(this,'Clicked Second Item')">Second Item</li>
+          <li onclick="report(this,'Clicked Third Item')">Third Item</li>
+          <li onclick="report(this,'Clicked Fourth Item')">Fourth Item</li>
+        </ul>
+      </div>
+      <code>//ul[@id='xp-position-list']/li[position()=2]   // Second Item
+//ul[@id='xp-position-list']/li[last()]           // Fourth Item
+//ul[@id='xp-position-list']/li[last()-1]         // Third Item</code>
+    </div>
+    <div class="card">
+      <div class="label">and / not() — combine or negate conditions</div>
+      <div class="row">
+        <button type="button" class="btn-danger" disabled>Delete Item</button>
+        <button type="button" class="btn-danger" onclick="report(this,'Clicked Archive Item')">Archive Item</button>
+      </div>
+      <code>//button[@class='btn-danger' and @disabled]         // Delete Item
+//button[@class='btn-danger' and not(@disabled)]     // Archive Item</code>
+    </div>
+    <div class="card">
+      <div class="label">or — match either of two possible text values</div>
+      <div class="row">
+        <div class="xp-status" onclick="report(this,'Clicked status badge')">Status: Failed</div>
+      </div>
+      <code>//div[text()='Status: Passed' or text()='Status: Failed']</code>
+    </div>
+
+    <h2>Wildcards &amp; Combined Relative XPath (real-world patterns)</h2>
+    <div class="card">
+      <div class="label">Wildcard (*) — match any element name at a given level</div>
+      <div class="row">
+        <div class="xp-box" id="xp-wildcard-parent">
+          <span onclick="report(this,'Clicked wildcard child span')">Span Child</span>
+        </div>
+      </div>
+      <code>//div[@id='xp-wildcard-parent']/*        // matches the span regardless of tag name
+//*[@id='xp-wildcard-parent']</code>
+    </div>
+    <div class="card">
+      <div class="label">Label → sibling input — a very common relative XPath pattern</div>
+      <div class="row">
+        <div class="xp-form-row">
+          <label>Full Name</label>
+          <input type="text" placeholder="Enter full name">
+        </div>
+      </div>
+      <code>//label[text()='Full Name']/following-sibling::input
+//label[text()='Full Name']/parent::div/input</code>
+    </div>
+    <div class="card">
+      <div class="label">Table row navigation — locate a cell/button relative to another cell's text</div>
+      <div class="row">
+        <table class="demo-table" id="xp-table">
+          <thead><tr><th>Product</th><th>Qty</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Wireless Mouse</td><td>2</td><td><button onclick="report(this,'Removed Wireless Mouse')">Remove</button></td></tr>
+            <tr><td>Mechanical Keyboard</td><td>1</td><td><button onclick="report(this,'Removed Mechanical Keyboard')">Remove</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <code>//td[text()='Mechanical Keyboard']/following-sibling::td[2]/button
+//td[text()='Mechanical Keyboard']/ancestor::tr/td[2]   // Qty cell → 1</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 5: Shadow DOM - open vs closed shadow root practice       -->
+  <!-- ============================================================ -->
+  <div id="panel-shadow" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-shadow">
+    <h2>Shadow DOM Practice — Open vs Closed</h2>
+    <p style="color:#64748b;font-size:13px;margin-top:0;">Each custom element below builds its own shadow root in JavaScript. Open shadow roots can be pierced by Playwright locators; closed shadow roots cannot.</p>
+
+    <h2>Open Shadow Root</h2>
+    <div class="card">
+      <div class="label">Basic Open Shadow Host — Playwright pierces this automatically</div>
+      <div class="row"><shadow-open-demo></shadow-open-demo></div>
+      <code>page.locator('shadow-open-demo').locator('#openBtn')
+// chaining locators auto-pierces an OPEN shadow root, no special syntax needed</code>
+    </div>
+    <div class="card">
+      <div class="label">Open Shadow Root — List of Items (query multiple elements inside)</div>
+      <div class="row"><shadow-open-list></shadow-open-list></div>
+      <code>page.locator('shadow-open-list').locator('li')          // all items
+page.locator('shadow-open-list').getByText('Mango')     // one item</code>
+    </div>
+
+    <h2>Closed Shadow Root</h2>
+    <div class="card">
+      <div class="label">Basic Closed Shadow Host — content renders, but is not reachable from outside</div>
+      <div class="row"><shadow-closed-demo></shadow-closed-demo></div>
+      <code>// element.shadowRoot === null for a CLOSED root, so this returns nothing:
+page.locator('shadow-closed-demo').locator('#closedBtn')   // ✗ cannot find it</code>
+    </div>
+    <div class="card">
+      <div class="label">Why closed shadow DOM can't be automated the normal way</div>
+      <div class="row" style="font-size:13px;color:#334155;max-width:520px;">
+        A closed shadow root hides its internal reference — <code style="display:inline;padding:2px 6px;margin:0;">this.attachShadow(&#123;mode:'closed'&#125;)</code> means the component itself keeps the only handle to <code style="display:inline;padding:2px 6px;margin:0;">shadowRoot</code>. Playwright, DevTools, and plain <code style="display:inline;padding:2px 6px;margin:0;">querySelector</code> all get <code style="display:inline;padding:2px 6px;margin:0;">null</code> from the outside. There is no supported locator workaround — only the page's own script (which holds the closed reference) can reach inside.
+      </div>
+    </div>
+
+  </div>
+
 
 <script>
 function showMainTab(name){
-  var tabs = ['role','other','allroles'];
+  var tabs = ['role','other','allroles','xpath','shadow'];
   tabs.forEach(function(t){
     var panel = document.getElementById('panel-' + t);
     var btn = document.getElementById('maintab-' + t);
@@ -1103,6 +1415,62 @@ document.addEventListener('input', function(e){
     report(el, describe(el) + ' → value ' + el.value);
   }
 });
+
+/* ---------- Shadow DOM demo elements ---------- */
+
+class ShadowOpenDemo extends HTMLElement{
+  connectedCallback(){
+    const root = this.attachShadow({mode:'open'});
+    root.innerHTML = `
+      <style>
+        p{margin:0 0 8px;color:#334155;font-size:13px;}
+        button{background:#6366f1;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:14px;cursor:pointer;}
+      </style>
+      <p>Inside an <b>OPEN</b> shadow root</p>
+      <button id="openBtn">Click Me (Open Shadow)</button>
+    `;
+    root.getElementById('openBtn').addEventListener('click', () => report(this, 'Clicked button inside OPEN shadow DOM'));
+  }
+}
+customElements.define('shadow-open-demo', ShadowOpenDemo);
+
+class ShadowOpenList extends HTMLElement{
+  connectedCallback(){
+    const root = this.attachShadow({mode:'open'});
+    root.innerHTML = `
+      <style>
+        p{margin:0 0 8px;color:#334155;font-size:13px;}
+        ul{margin:0;padding-left:18px;}
+        li{cursor:pointer;color:#3730a3;padding:2px 0;}
+        li:hover{text-decoration:underline;}
+      </style>
+      <p>Fruit list — inside an <b>OPEN</b> shadow root</p>
+      <ul>
+        <li>Apple</li>
+        <li>Mango</li>
+        <li>Orange</li>
+      </ul>
+    `;
+    root.querySelectorAll('li').forEach(li => li.addEventListener('click', () => report(this, 'Clicked "' + li.textContent + '" inside OPEN shadow list')));
+  }
+}
+customElements.define('shadow-open-list', ShadowOpenList);
+
+class ShadowClosedDemo extends HTMLElement{
+  connectedCallback(){
+    const root = this.attachShadow({mode:'closed'});
+    root.innerHTML = `
+      <style>
+        p{margin:0 0 8px;color:#334155;font-size:13px;}
+        button{background:#334155;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:14px;cursor:pointer;}
+      </style>
+      <p>Inside a <b>CLOSED</b> shadow root</p>
+      <button id="closedBtn">Click Me (Closed Shadow)</button>
+    `;
+    root.getElementById('closedBtn').addEventListener('click', () => report(this, 'Clicked button inside CLOSED shadow DOM'));
+  }
+}
+customElements.define('shadow-closed-demo', ShadowClosedDemo);
 </script>
 
 </body>
