@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Playwright Interactions Practice</title>
+<style>
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    color:#1f2933;
+    background:#f4f7fb;
+    margin:0;
+    padding:24px 20px 60px;
+    line-height:1.45;
+  }
+  h1{font-size:24px;margin-bottom:4px;color:#4338ca;}
+  h2{
+    font-size:15px;margin-top:34px;
+    color:#0369a1;
+    border-left:4px solid #0ea5e9;
+    padding:4px 0 4px 10px;
+    text-transform:uppercase;letter-spacing:.03em;
+  }
+  .card{
+    border:1px solid #dbe3ec;
+    border-left:4px solid #6366f1;
+    background:#ffffff;
+    border-radius:8px;
+    padding:12px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .label{font-weight:bold;font-size:13px;margin-bottom:8px;color:#c026d3;}
+  .hint{font-size:12px;color:#64748b;margin-top:6px;}
+  code{
+    display:block;
+    background:#f8fafc;
+    color:#334155;
+    border:1px solid #e2e8f0;
+    border-left:3px solid #6366f1;
+    border-radius:6px;
+    padding:7px 10px;
+    margin-top:8px;
+    font-size:12.5px;
+    white-space:pre-wrap;
+    font-family:"SF Mono",Consolas,Menlo,monospace;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  a{color:#2563eb;}
+
+  button{
+    background:#6366f1;color:#fff;border:none;
+    padding:8px 14px;border-radius:6px;font-size:14px;cursor:pointer;
+  }
+  button:hover{background:#4f46e5;}
+  button:disabled{background:#cbd5e1;color:#64748b;cursor:not-allowed;}
+  button[aria-pressed="true"]{background:#4338ca;}
+  button[role="switch"][aria-checked="true"]{background:#4338ca;}
+  input[type=text],input[type=search],input[type=number],input[type=password],
+  input[type=date],input[type=time],input[type=datetime-local],input[type=month],
+  textarea,select{
+    border:1px solid #94a3b8;border-radius:6px;padding:7px 9px;font-size:14px;background:#fff;font-family:inherit;
+  }
+  input:disabled,textarea:disabled{background:#e2e8f0;color:#64748b;}
+  input[readonly]{background:#f1f5f9;}
+  input[type=range]{accent-color:#6366f1;}
+  input[type=checkbox],input[type=radio]{accent-color:#6366f1;width:16px;height:16px;}
+
+  .maintabs{margin:16px 0;}
+  .maintab-btn{
+    background:#e0e7ff;color:#4338ca;border:1px solid #c7d2fe;
+    padding:9px 18px;font-size:14px;cursor:pointer;
+    margin-right:6px;margin-bottom:6px;border-radius:6px 6px 0 0;font-weight:600;
+  }
+  .maintab-btn[aria-selected="true"]{background:#4338ca;color:#fff;border-color:#4338ca;}
+  .maintabpanel{display:none;}
+  .maintabpanel.active{display:block;}
+
+  [role=alert]{border:1px solid #fca5a5;background:#fef2f2;color:#b91c1c;padding:9px 12px;border-radius:6px;}
+
+  .menu-wrap{position:relative;display:inline-block;}
+  .menu{
+    position:absolute;top:104%;left:0;background:#fff;
+    border:1px solid #c7d2fe;border-radius:8px;display:none;min-width:170px;
+    box-shadow:0 6px 16px rgba(0,0,0,.12);z-index:10;overflow:hidden;
+  }
+  .menu.open{display:block;}
+  .menu [role=option]{display:block;width:100%;text-align:left;border:none;border-bottom:1px solid #eef2ff;background:#fff;color:#3730a3;padding:9px 12px;cursor:pointer;}
+  .menu [role=option]:hover{background:#eef2ff;}
+  .menu [role=option][aria-selected="true"]{background:#6366f1;color:#fff;}
+
+  .ac-wrap{position:relative;display:inline-block;}
+  .ac-list{
+    position:absolute;top:104%;left:0;right:0;background:#fff;
+    border:1px solid #c7d2fe;border-radius:8px;overflow:hidden;z-index:10;
+    box-shadow:0 6px 16px rgba(0,0,0,.12);
+  }
+  .ac-list [role=option]{padding:8px 12px;cursor:pointer;color:#3730a3;font-size:13.5px;}
+  .ac-list [role=option]:hover, .ac-list [role=option].active{background:#eef2ff;}
+
+  .listbox{border:1px solid #a5b4fc;border-radius:8px;width:210px;overflow:hidden;}
+  .listbox [role=option]{padding:8px 12px;cursor:pointer;border-bottom:1px solid #eef2ff;color:#3730a3;}
+  .listbox [role=option][aria-selected="true"]{background:#6366f1;color:#fff;}
+  .listbox [role=option]:not([aria-selected="true"]):hover{background:#eef2ff;}
+
+  .subtablist [role=tab]{border:1px solid #7dd3fc;background:#e0f2fe;color:#075985;padding:7px 14px;margin-right:6px;border-radius:6px 6px 0 0;}
+  .subtablist [role=tab][aria-selected="true"]{background:#0ea5e9;color:#fff;border-color:#0ea5e9;}
+  .subtabpanel{border:1px solid #7dd3fc;background:#f0f9ff;border-radius:0 8px 8px 8px;padding:12px;margin-top:0;}
+
+  .accordion{border:1px solid #c7d2fe;border-radius:8px;overflow:hidden;}
+  .acc-header{
+    display:block;width:100%;text-align:left;background:#eef2ff;color:#3730a3;
+    border:none;border-bottom:1px solid #c7d2fe;border-radius:0;padding:10px 12px;font-weight:600;
+  }
+  .acc-header[aria-expanded="true"]{background:#4338ca;color:#fff;}
+  .acc-panel{padding:10px 14px;background:#fff;border-bottom:1px solid #eef2ff;font-size:13.5px;color:#334155;}
+
+  .stars{display:inline-flex;gap:4px;}
+  .stars button{
+    background:none;border:none;font-size:26px;line-height:1;padding:0 2px;color:#cbd5e1;cursor:pointer;
+  }
+  .stars button.filled{color:#f59e0b;}
+  .stars button:hover{background:none;}
+
+  .dnd-zone{
+    width:180px;min-height:70px;border:2px dashed #a5b4fc;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    color:#64748b;font-size:13px;padding:8px;background:#f8fafc;
+  }
+  .dnd-zone.dragover{background:#eef2ff;border-color:#6366f1;color:#4338ca;}
+  .dnd-item{
+    padding:10px 14px;border-radius:8px;background:#6366f1;color:#fff;cursor:grab;
+    font-size:13.5px;user-select:none;
+  }
+  .dnd-item:active{cursor:grabbing;}
+  .sortable-list{list-style:none;margin:0;padding:0;width:220px;}
+  .sortable-list li{
+    background:#fff;border:1px solid #c7d2fe;border-radius:6px;padding:8px 12px;
+    margin-bottom:6px;cursor:grab;color:#3730a3;font-size:13.5px;
+  }
+  .sortable-list li.dragging{opacity:.4;}
+  .sortable-list li.drag-over{border:1px dashed #6366f1;}
+
+  .tooltip-wrap{position:relative;display:inline-block;border-bottom:1px dotted #64748b;cursor:help;}
+  .tooltip-box{
+    position:absolute;bottom:130%;left:50%;transform:translateX(-50%);
+    background:#111827;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;
+    white-space:nowrap;display:none;z-index:10;
+  }
+  .tooltip-wrap:hover .tooltip-box, .tooltip-wrap:focus .tooltip-box{display:block;}
+
+  .scroll-box{height:120px;overflow-y:auto;border:1px solid #c7d2fe;border-radius:8px;padding:8px 10px;background:#f8fafc;}
+  .scroll-box p{margin:0 0 40px;color:#334155;font-size:13.5px;}
+
+  iframe{width:100%;height:120px;border:1px solid #c7d2fe;border-radius:8px;}
+
+  dialog{border:1px solid #c7d2fe;border-radius:10px;padding:18px;}
+  dialog::backdrop{background:rgba(30,27,75,.45);}
+
+  .msg{
+    margin-top:8px;
+    padding:7px 10px;
+    border:1px solid #c7d2fe;
+    border-radius:6px;
+    background:#eef2ff;
+    color:#4338ca;
+    font-weight:600;
+    font-size:12.5px;
+    min-height:16px;
+    display:none;
+  }
+  .msg.show{display:block;}
+</style>
+</head>
+<body>
+
+  <h1>Playwright Interactions Practice</h1>
+  <p>Every card has a live element, the Playwright action to try, and a status message that confirms what just happened. New to Playwright? Work through the tabs left to right.</p>
+
+  <div class="maintabs" role="tablist" aria-label="Interaction categories">
+    <button class="maintab-btn" role="tab" id="maintab-forms" aria-selected="true" aria-controls="panel-forms" onclick="showMainTab('forms')">1. Form Basics</button>
+    <button class="maintab-btn" role="tab" id="maintab-mouse" aria-selected="false" aria-controls="panel-mouse" onclick="showMainTab('mouse')">2. Mouse Actions</button>
+    <button class="maintab-btn" role="tab" id="maintab-keyboard" aria-selected="false" aria-controls="panel-keyboard" onclick="showMainTab('keyboard')">3. Keyboard</button>
+    <button class="maintab-btn" role="tab" id="maintab-widgets" aria-selected="false" aria-controls="panel-widgets" onclick="showMainTab('widgets')">4. Widgets</button>
+    <button class="maintab-btn" role="tab" id="maintab-dialogs" aria-selected="false" aria-controls="panel-dialogs" onclick="showMainTab('dialogs')">5. Dialogs &amp; Tooltips</button>
+    <button class="maintab-btn" role="tab" id="maintab-advanced" aria-selected="false" aria-controls="panel-advanced" onclick="showMainTab('advanced')">6. Files, Dates &amp; Scroll</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: FORM BASICS - textbox, checkbox, radio, dropdowns      -->
+  <!-- ============================================================ -->
+  <div id="panel-forms" class="maintabpanel active" role="tabpanel" aria-labelledby="maintab-forms">
+
+    <h2>Textboxes</h2>
+    <div class="card">
+      <div class="label">Full Name (fill)</div>
+      <label for="tb-name">Full Name</label><br>
+      <input type="text" id="tb-name" placeholder="Enter your name">
+      <code>await page.getByLabel('Full Name').fill('Sivashankar');
+// XPath: //label[normalize-space()='Full Name']/following::input[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Bio (multi-line textarea)</div>
+      <label for="tb-bio">Short Bio</label><br>
+      <textarea id="tb-bio" rows="3" cols="34" placeholder="Tell us about yourself"></textarea>
+      <code>await page.getByLabel('Short Bio').fill('SDET learning Playwright.');
+// XPath: //label[normalize-space()='Short Bio']/following::textarea[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Password (with show/hide toggle)</div>
+      <label for="tb-pass">Password</label><br>
+      <div class="row">
+        <input type="password" id="tb-pass" placeholder="Secret123">
+        <button onclick="togglePassword()">Show / Hide</button>
+      </div>
+      <code>await page.getByLabel('Password').fill('Secret123');
+await page.getByRole('button', { name: 'Show / Hide' }).click();
+// XPath: //label[normalize-space()='Password']/following::input[@type='password'][1]
+// XPath: //button[normalize-space()='Show / Hide']</code>
+    </div>
+    <div class="card">
+      <div class="label">Clearable Field</div>
+      <label for="tb-clear">City</label><br>
+      <div class="row">
+        <input type="text" id="tb-clear" value="Chennai">
+        <button onclick="clearField('tb-clear')">Clear</button>
+      </div>
+      <code>await page.getByLabel('City').fill('');  // or .clear()
+// XPath: //label[normalize-space()='City']/following::input[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Disabled Field (should reject typing)</div>
+      <label for="tb-disabled">Account ID</label><br>
+      <input type="text" id="tb-disabled" value="ACC-10293" disabled>
+      <code>await expect(page.getByLabel('Account ID')).toBeDisabled();
+// XPath: //label[normalize-space()='Account ID']/following::input[1]</code>
+    </div>
+
+    <h2>Checkboxes</h2>
+    <div class="card">
+      <div class="label">Single Checkbox</div>
+      <div class="row"><input type="checkbox" id="cb-terms"><label for="cb-terms">Accept Terms and Conditions</label></div>
+      <code>await page.getByLabel('Accept Terms and Conditions').check();
+// XPath: //label[normalize-space()='Accept Terms and Conditions']/preceding::input[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Checkbox Group (Hobbies) + Select All / Indeterminate</div>
+      <div class="row"><input type="checkbox" id="cb-all" onclick="toggleAllHobbies(this)"><label for="cb-all"><b>Select All</b></label></div>
+      <div class="row">
+        <input type="checkbox" class="hobby" id="cb-h1" onclick="hobbyChanged()"><label for="cb-h1">Reading</label>
+        <input type="checkbox" class="hobby" id="cb-h2" onclick="hobbyChanged()"><label for="cb-h2">Cycling</label>
+        <input type="checkbox" class="hobby" id="cb-h3" onclick="hobbyChanged()"><label for="cb-h3">Gaming</label>
+      </div>
+      <code>await page.getByLabel('Select All').check();
+await expect(page.getByLabel('Reading')).toBeChecked();
+// XPath: //label[normalize-space()='Select All']/preceding::input[1]
+// XPath: //label[normalize-space()='Reading']/preceding::input[1]</code>
+    </div>
+
+    <h2>Radio Buttons</h2>
+    <div class="card">
+      <div class="label">Gender (radio group)</div>
+      <div class="row">
+        <input type="radio" name="gender" id="rb-male"><label for="rb-male">Male</label>
+        <input type="radio" name="gender" id="rb-female"><label for="rb-female">Female</label>
+        <input type="radio" name="gender" id="rb-other"><label for="rb-other">Other</label>
+      </div>
+      <code>await page.getByLabel('Female').check();
+// XPath: //label[normalize-space()='Female']/preceding::input[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Payment Method (radio reveals a conditional field)</div>
+      <div class="row">
+        <input type="radio" name="pay" id="rb-card" onclick="showPayField('card')"><label for="rb-card">Credit Card</label>
+        <input type="radio" name="pay" id="rb-upi" onclick="showPayField('upi')"><label for="rb-upi">UPI</label>
+      </div>
+      <div id="pay-card" style="display:none;margin-top:8px;"><input type="text" placeholder="Card number" aria-label="Card Number"></div>
+      <div id="pay-upi" style="display:none;margin-top:8px;"><input type="text" placeholder="name@upi" aria-label="UPI ID"></div>
+      <code>await page.getByLabel('UPI').check();
+await expect(page.getByLabel('UPI ID')).toBeVisible();
+// XPath: //label[normalize-space()='UPI']/preceding::input[1]
+// XPath: //input[@aria-label='UPI ID']</code>
+    </div>
+
+    <h2>Dropdown — Native &lt;select&gt;</h2>
+    <div class="card">
+      <div class="label">Single-select Dropdown</div>
+      <label for="sel-country">Country</label><br>
+      <select id="sel-country">
+        <option value="">-- choose --</option>
+        <option>India</option><option>USA</option><option>UAE</option>
+      </select>
+      <code>await page.getByLabel('Country').selectOption('India');
+// XPath: //label[normalize-space()='Country']/following::select[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Multi-select Dropdown</div>
+      <label for="sel-skills">Skills</label><br>
+      <select id="sel-skills" multiple size="4">
+        <option>JavaScript</option><option>Python</option><option>Java</option><option>C#</option>
+      </select>
+      <code>await page.getByLabel('Skills').selectOption(['JavaScript', 'Python']);
+// XPath: //label[normalize-space()='Skills']/following::select[1]</code>
+    </div>
+
+    <h2>Dropdown — Non-select (custom div/button based)</h2>
+    <div class="card">
+      <div class="label">Custom Dropdown Menu (click to open, click option to choose)</div>
+      <div class="menu-wrap">
+        <button aria-haspopup="listbox" aria-expanded="false" id="cd-btn" onclick="toggleCustomDropdown()">Choose Fruit ▾</button>
+        <div class="menu" id="cd-menu" role="listbox" aria-label="Choose Fruit">
+          <div role="option" aria-selected="false" onclick="selectCustomOption(this,'Apple')">Apple</div>
+          <div role="option" aria-selected="false" onclick="selectCustomOption(this,'Mango')">Mango</div>
+          <div role="option" aria-selected="false" onclick="selectCustomOption(this,'Orange')">Orange</div>
+        </div>
+      </div>
+      <code>await page.getByRole('button', { name: 'Choose Fruit' }).click();
+await page.getByRole('option', { name: 'Mango' }).click();
+// XPath: //button[contains(normalize-space(),'Choose Fruit')]
+// XPath: //div[@role='option'][normalize-space()='Mango']</code>
+      <div class="hint">This is NOT a real &lt;select&gt; — selectOption() will NOT work here. Use click() on the button, then click() on the option.</div>
+    </div>
+    <div class="card">
+      <div class="label">Searchable Autocomplete / Typeahead</div>
+      <div class="ac-wrap">
+        <label for="ac-input">Search Fruit</label><br>
+        <input type="text" id="ac-input" autocomplete="off" placeholder="Type to search..." oninput="filterAutocomplete(this.value)" onfocus="filterAutocomplete(this.value)">
+        <div class="ac-list" id="ac-list" style="display:none;"></div>
+      </div>
+      <code>await page.getByLabel('Search Fruit').fill('ma');
+await page.getByRole('option', { name: 'Mango' }).click();
+// XPath: //label[normalize-space()='Search Fruit']/following::input[1]
+// XPath: //div[@role='option'][normalize-space()='Mango']</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 2: MOUSE ACTIONS                                          -->
+  <!-- ============================================================ -->
+  <div id="panel-mouse" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-mouse">
+
+    <h2>Click Variants</h2>
+    <div class="card">
+      <div class="label">Single Click Counter</div>
+      <button id="click-counter" onclick="incrementCounter()">Clicked 0 times</button>
+      <code>await page.getByRole('button', { name: /Clicked/ }).click();
+// XPath: //button[contains(text(),'Clicked')]</code>
+    </div>
+    <div class="card">
+      <div class="label">Double Click</div>
+      <button ondblclick="report(this,'Double-clicked! Text revealed below.')" id="dbl-btn">Double-click Me</button>
+      <code>await page.getByRole('button', { name: 'Double-click Me' }).dblclick();
+// XPath: //button[normalize-space()='Double-click Me']</code>
+    </div>
+    <div class="card">
+      <div class="label">Right Click (custom context menu)</div>
+      <div class="menu-wrap">
+        <div class="dnd-item" id="ctx-target" oncontextmenu="return openContextMenu(event)" style="cursor:context-menu;">Right-click Me</div>
+        <div class="menu" id="ctx-menu" role="menu">
+          <div role="menuitem" onclick="report(document.getElementById('ctx-target'),'Context menu → Copy selected'); closeContextMenu();">Copy</div>
+          <div role="menuitem" onclick="report(document.getElementById('ctx-target'),'Context menu → Delete selected'); closeContextMenu();">Delete</div>
+        </div>
+      </div>
+      <code>await page.getByText('Right-click Me').click({ button: 'right' });
+await page.getByRole('menuitem', { name: 'Delete' }).click();
+// XPath: //div[normalize-space()='Right-click Me']
+// XPath: //div[@role='menuitem'][normalize-space()='Delete']</code>
+    </div>
+
+    <h2>Hover</h2>
+    <div class="card">
+      <div class="label">Hover to Reveal Menu</div>
+      <div class="menu-wrap" onmouseenter="showHoverMenu()" onmouseleave="hideHoverMenu()">
+        <button>Account ▾</button>
+        <div class="menu" id="hover-menu" role="menu">
+          <div role="menuitem" onclick="report(this,'Hover menu → Profile clicked')">Profile</div>
+          <div role="menuitem" onclick="report(this,'Hover menu → Logout clicked')">Logout</div>
+        </div>
+      </div>
+      <code>await page.getByRole('button', { name: 'Account' }).hover();
+await page.getByRole('menuitem', { name: 'Profile' }).click();
+// XPath: //button[contains(normalize-space(),'Account')]
+// XPath: //div[@role='menuitem'][normalize-space()='Profile']</code>
+    </div>
+
+    <h2>Drag &amp; Drop</h2>
+    <div class="card">
+      <div class="label">Drag Item into Drop Zone</div>
+      <div class="row">
+        <div class="dnd-item" id="drag-src" draggable="true" ondragstart="onDragStart(event)">📦 Drag Me</div>
+        <div class="dnd-zone" id="drop-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">Drop Here</div>
+      </div>
+      <code>await page.getByText('📦 Drag Me').dragTo(page.getByText('Drop Here'));
+// XPath: //div[contains(normalize-space(),'Drag Me')]
+// XPath: //div[normalize-space()='Drop Here']</code>
+    </div>
+    <div class="card">
+      <div class="label">Reorder List (drag to change order)</div>
+      <ul class="sortable-list" id="sortable-list">
+        <li draggable="true">Task 1 - Design</li>
+        <li draggable="true">Task 2 - Develop</li>
+        <li draggable="true">Task 3 - Test</li>
+      </ul>
+      <code>// Playwright: use dragTo() between list items, or mouse.move/down/up for fine control
+const item = page.getByText('Task 3 - Test');
+await item.dragTo(page.getByText('Task 1 - Design'));
+// XPath: //li[normalize-space()='Task 3 - Test']
+// XPath: //li[normalize-space()='Task 1 - Design']</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 3: KEYBOARD                                               -->
+  <!-- ============================================================ -->
+  <div id="panel-keyboard" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-keyboard">
+
+    <h2>Keyboard Input</h2>
+    <div class="card">
+      <div class="label">Press Enter to Submit</div>
+      <label for="kb-search">Search &amp; press Enter</label><br>
+      <input type="text" id="kb-search" placeholder="Type a query, then press Enter" onkeydown="handleEnterSubmit(event, this)">
+      <code>await page.getByLabel('Search & press Enter').fill('playwright');
+await page.getByLabel('Search & press Enter').press('Enter');
+// XPath: //label[normalize-space()='Search & press Enter']/following::input[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Tab Order (press Tab to move focus)</div>
+      <div class="row">
+        <input type="text" placeholder="Field 1" tabindex="1">
+        <input type="text" placeholder="Field 2" tabindex="2">
+        <input type="text" placeholder="Field 3" tabindex="3">
+      </div>
+      <code>await page.getByPlaceholder('Field 1').press('Tab');
+await expect(page.getByPlaceholder('Field 2')).toBeFocused();
+// XPath: //input[@placeholder='Field 1']
+// XPath: //input[@placeholder='Field 2']</code>
+    </div>
+    <div class="card">
+      <div class="label">Keyboard Shortcut (Ctrl+S / Cmd+S)</div>
+      <div tabindex="0" id="shortcut-area" style="outline:none;border:1px dashed #a5b4fc;border-radius:8px;padding:14px;background:#f8fafc;" onkeydown="handleShortcut(event,this)">
+        Click here first to focus, then press Ctrl+S (or Cmd+S on Mac)
+      </div>
+      <code>await page.locator('#shortcut-area').click();
+await page.keyboard.press('Control+S');</code>
+    </div>
+
+    <h2>Arrow-key Navigable Listbox</h2>
+    <div class="card">
+      <div class="label">Use ↑ / ↓ then Enter to select</div>
+      <div class="listbox" role="listbox" aria-label="Favorite Color" id="kb-listbox" tabindex="0" onkeydown="handleListboxKeys(event,this)">
+        <div role="option" aria-selected="true" onclick="selectKbOption(this)">Blue</div>
+        <div role="option" aria-selected="false" onclick="selectKbOption(this)">Red</div>
+        <div role="option" aria-selected="false" onclick="selectKbOption(this)">Green</div>
+      </div>
+      <code>await page.getByRole('listbox', { name: 'Favorite Color' }).focus();
+await page.keyboard.press('ArrowDown');
+await page.keyboard.press('Enter');
+// XPath: //div[@role='listbox'][@aria-label='Favorite Color']</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 4: WIDGETS - sliders, rating, toggles, tabs, accordion    -->
+  <!-- ============================================================ -->
+  <div id="panel-widgets" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-widgets">
+
+    <h2>Sliders &amp; Steppers</h2>
+    <div class="card">
+      <div class="label">Volume Slider</div>
+      <label for="rng-volume">Volume</label><br>
+      <input type="range" id="rng-volume" min="0" max="100" value="50">
+      <code>await page.getByLabel('Volume').fill('80');
+// or drag the thumb: locator.press('ArrowRight') repeatedly
+// XPath: //label[normalize-space()='Volume']/following::input[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Quantity Stepper (+ / -)</div>
+      <div class="row">
+        <button onclick="stepQty(-1)">−</button>
+        <input type="number" id="qty-input" value="1" min="0" max="20" readonly>
+        <button onclick="stepQty(1)">+</button>
+      </div>
+      <code>await page.getByRole('button', { name: '+' }).click();
+await expect(page.locator('#qty-input')).toHaveValue('2');
+// XPath: //button[normalize-space()='+']</code>
+    </div>
+    <div class="card">
+      <div class="label">Star Rating</div>
+      <div class="stars" role="radiogroup" aria-label="Rate this product" id="star-rating">
+        <button aria-label="Rate 1 star" onclick="setRating(1)">★</button>
+        <button aria-label="Rate 2 stars" onclick="setRating(2)">★</button>
+        <button aria-label="Rate 3 stars" onclick="setRating(3)">★</button>
+        <button aria-label="Rate 4 stars" onclick="setRating(4)">★</button>
+        <button aria-label="Rate 5 stars" onclick="setRating(5)">★</button>
+      </div>
+      <code>await page.getByRole('button', { name: 'Rate 4 stars' }).click();
+// XPath: //button[@aria-label='Rate 4 stars']</code>
+    </div>
+
+    <h2>Toggles &amp; Switches</h2>
+    <div class="card">
+      <div class="label">Dark Mode Toggle (switch)</div>
+      <button role="switch" aria-checked="false" aria-label="Dark Mode Toggle" onclick="const c=this.getAttribute('aria-checked')==='true'?'false':'true';this.setAttribute('aria-checked',c);report(this,'Dark Mode Toggle → checked='+c);">Toggle</button>
+      <code>await page.getByRole('switch', { name: 'Dark Mode Toggle' }).click();
+// XPath: //button[@role='switch'][@aria-label='Dark Mode Toggle']</code>
+    </div>
+
+    <h2>Tabs</h2>
+    <div class="card">
+      <div class="label">Order Details Tabs</div>
+      <div class="subtablist" role="tablist" aria-label="Order tabs">
+        <button role="tab" id="ot-details" aria-selected="true" onclick="showOrderTab('details')">Details</button>
+        <button role="tab" id="ot-shipping" aria-selected="false" onclick="showOrderTab('shipping')">Shipping</button>
+        <button role="tab" id="ot-reviews" aria-selected="false" onclick="showOrderTab('reviews')">Reviews</button>
+      </div>
+      <div class="subtabpanel" id="op-details" role="tabpanel">Order #1029 — 2x Wireless Mouse.</div>
+      <div class="subtabpanel" id="op-shipping" role="tabpanel" style="display:none;">Estimated delivery: 3-5 business days.</div>
+      <div class="subtabpanel" id="op-reviews" role="tabpanel" style="display:none;">★★★★☆ "Great product!"</div>
+      <code>await page.getByRole('tab', { name: 'Shipping' }).click();
+await expect(page.getByRole('tabpanel')).toContainText('delivery');
+// XPath: //button[@role='tab'][normalize-space()='Shipping']
+// XPath: //div[@role='tabpanel']</code>
+    </div>
+
+    <h2>Accordion</h2>
+    <div class="card">
+      <div class="label">Expandable FAQ Sections</div>
+      <div class="accordion">
+        <button class="acc-header" aria-expanded="false" onclick="toggleAccordion(this)">Section 1: Shipping Info</button>
+        <div class="acc-panel" hidden>Standard delivery takes 3-5 business days.</div>
+        <button class="acc-header" aria-expanded="false" onclick="toggleAccordion(this)">Section 2: Return Policy</button>
+        <div class="acc-panel" hidden>Items can be returned within 30 days.</div>
+        <button class="acc-header" aria-expanded="false" onclick="toggleAccordion(this)">Section 3: Warranty</button>
+        <div class="acc-panel" hidden>1-year manufacturer warranty included.</div>
+      </div>
+      <code>await page.getByRole('button', { name: 'Section 2: Return Policy' }).click();
+await expect(page.getByText('Items can be returned')).toBeVisible();
+// XPath: //button[normalize-space()='Section 2: Return Policy']
+// XPath: //*[contains(text(),'Items can be returned')]</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 5: DIALOGS & TOOLTIPS                                     -->
+  <!-- ============================================================ -->
+  <div id="panel-dialogs" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-dialogs">
+
+    <h2>Modal Dialog</h2>
+    <div class="card">
+      <div class="label">Confirmation Modal (in-page &lt;dialog&gt;)</div>
+      <button onclick="document.getElementById('confirmDialog').showModal()">Delete Account</button>
+      <dialog id="confirmDialog" aria-label="Confirm Deletion">
+        <p><strong>Confirm Deletion</strong></p>
+        <p>This action cannot be undone.</p>
+        <button onclick="document.getElementById('confirmDialog').close()">Cancel</button>
+        <button onclick="document.getElementById('confirmDialog').close()">Confirm</button>
+      </dialog>
+      <code>await page.getByRole('button', { name: 'Delete Account' }).click();
+await page.getByRole('dialog').getByRole('button', { name: 'Confirm' }).click();
+// XPath: //button[normalize-space()='Delete Account']
+// XPath: //dialog//button[normalize-space()='Confirm']</code>
+    </div>
+
+    <h2>Browser-native Dialogs</h2>
+    <div class="card">
+      <div class="label">Alert</div>
+      <button onclick="alert('This is a simple alert message!')">Show Alert</button>
+      <code>page.on('dialog', dialog => dialog.accept());
+await page.getByRole('button', { name: 'Show Alert' }).click();
+// XPath: //button[normalize-space()='Show Alert']</code>
+    </div>
+    <div class="card">
+      <div class="label">Confirm</div>
+      <button onclick="const ok=confirm('Do you want to proceed?'); report(this,'Confirm result: '+ok);">Show Confirm</button>
+      <code>page.on('dialog', dialog => dialog.accept());  // or dialog.dismiss()</code>
+    </div>
+    <div class="card">
+      <div class="label">Prompt</div>
+      <button onclick="const name=prompt('Enter your name:'); report(this,'Prompt result: '+name);">Show Prompt</button>
+      <code>page.on('dialog', dialog => dialog.accept('Sivashankar'));</code>
+    </div>
+
+    <h2>Tooltip</h2>
+    <div class="card">
+      <div class="label">Hover Tooltip</div>
+      <span class="tooltip-wrap" tabindex="0" onmouseenter="report(this,'Hovered — tooltip revealed')">
+        Shipping Info ℹ️
+        <span role="tooltip" class="tooltip-box">Free shipping on orders over $50</span>
+      </span>
+      <code>await page.getByText('Shipping Info').hover();
+await expect(page.getByRole('tooltip')).toBeVisible();
+// XPath: //span[contains(normalize-space(),'Shipping Info')]
+// XPath: //span[@role='tooltip']</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 6: FILES, DATES & SCROLL                                  -->
+  <!-- ============================================================ -->
+  <div id="panel-advanced" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-advanced">
+
+    <h2>File Upload</h2>
+    <div class="card">
+      <div class="label">Direct File Input</div>
+      <label for="file-direct">Upload File</label><br>
+      <input type="file" id="file-direct" onchange="report(this,'Selected file: '+(this.files[0]?this.files[0].name:'none'))">
+      <code>await page.getByLabel('Upload File').setInputFiles('path/to/file.txt');
+// XPath: //label[normalize-space()='Upload File']/following::input[@type='file'][1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Hidden Input via Styled Button (filechooser event)</div>
+      <input type="file" id="file-hidden" style="display:none" onchange="report(this,'Selected file: '+(this.files[0]?this.files[0].name:'none'))">
+      <button onclick="document.getElementById('file-hidden').click()">Choose File to Upload</button>
+      <code>const [chooser] = await Promise.all([
+  page.waitForEvent('filechooser'),
+  page.getByRole('button', { name: 'Choose File to Upload' }).click()
+]);
+await chooser.setFiles('path/to/file.txt');
+// XPath: //button[normalize-space()='Choose File to Upload']</code>
+    </div>
+    <div class="card">
+      <div class="label">Drag &amp; Drop File Zone</div>
+      <div class="dnd-zone" id="file-drop-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onFileDrop(event)">Drag a file here</div>
+      <code>// Native OS drag&drop of real files isn't automatable directly;
+// simulate via setInputFiles() on the underlying &lt;input type="file"&gt;
+// or dispatch a synthetic 'drop' DataTransfer event in the browser context.</code>
+    </div>
+
+    <h2>Date &amp; Time Pickers</h2>
+    <div class="card">
+      <div class="label">Date Picker</div>
+      <label for="dt-date">Booking Date</label><br>
+      <input type="date" id="dt-date">
+      <code>await page.getByLabel('Booking Date').fill('2026-09-15');
+// XPath: //label[normalize-space()='Booking Date']/following::input[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Time Picker</div>
+      <label for="dt-time">Preferred Time</label><br>
+      <input type="time" id="dt-time">
+      <code>await page.getByLabel('Preferred Time').fill('14:30');
+// XPath: //label[normalize-space()='Preferred Time']/following::input[1]</code>
+    </div>
+    <div class="card">
+      <div class="label">Date + Time Picker</div>
+      <label for="dt-datetime">Appointment</label><br>
+      <input type="datetime-local" id="dt-datetime">
+      <code>await page.getByLabel('Appointment').fill('2026-09-15T14:30');
+// XPath: //label[normalize-space()='Appointment']/following::input[1]</code>
+    </div>
+
+    <h2>Scrolling</h2>
+    <div class="card">
+      <div class="label">Scroll Within a Fixed-height Box</div>
+      <div class="scroll-box" id="scroll-box">
+        <p>Line 1 — keep scrolling to see more content inside this box.</p>
+        <p>Line 2 — this box has its own scrollbar.</p>
+        <p>Line 3 — you reached the bottom!</p>
+      </div>
+      <code>await page.locator('#scroll-box').evaluate(el => el.scrollTop = el.scrollHeight);</code>
+    </div>
+    <div class="card">
+      <div class="label">Load More (simulated infinite scroll)</div>
+      <ul id="load-more-list"><li>Item 1</li><li>Item 2</li></ul>
+      <button onclick="loadMoreItems()">Load More</button>
+      <code>await page.getByRole('button', { name: 'Load More' }).click();
+await expect(page.locator('#load-more-list li')).toHaveCount(4);
+// XPath: //button[normalize-space()='Load More']</code>
+    </div>
+    <div class="card">
+      <div class="label">Scroll Element Into View</div>
+      <button onclick="document.getElementById('scroll-target').scrollIntoView({behavior:'smooth'}); report(this,'Scrolled target into view');">Scroll to Target Below</button>
+      <div id="scroll-target" style="margin-top:900px;padding:14px;border:1px dashed #a5b4fc;border-radius:8px;background:#eef2ff;color:#4338ca;">🎯 You found the scroll target!</div>
+      <code>await page.locator('#scroll-target').scrollIntoViewIfNeeded();</code>
+    </div>
+
+    <h2>iFrame</h2>
+    <div class="card">
+      <div class="label">Interact Inside an Embedded Frame</div>
+      <iframe id="practice-frame" title="Practice Frame" srcdoc="&lt;body style='font-family:Arial;padding:12px;'&gt;&lt;p&gt;I am inside an iframe&lt;/p&gt;&lt;button onclick=&quot;this.nextElementSibling.textContent=&#39;Clicked inside iframe!&#39;&quot;&gt;Click Inside Frame&lt;/button&gt;&lt;p id=&#39;out&#39;&gt;&lt;/p&gt;&lt;/body&gt;"></iframe>
+      <code>const frame = page.frameLocator('#practice-frame');
+await frame.getByRole('button', { name: 'Click Inside Frame' }).click();
+// XPath (must run inside the frame too): //button[normalize-space()='Click Inside Frame']</code>
+      <div class="hint">Clicks inside the iframe above are isolated — they won't trigger this page's status message. In Playwright, use frameLocator() and assert inside the frame itself.</div>
+    </div>
+
+  </div>
+
+<script>
+/* ---------- Tab switching ---------- */
+function showMainTab(name){
+  var tabs = ['forms','mouse','keyboard','widgets','dialogs','advanced'];
+  tabs.forEach(function(t){
+    var panel = document.getElementById('panel-' + t);
+    var btn = document.getElementById('maintab-' + t);
+    if(panel) panel.classList.toggle('active', t===name);
+    if(btn) btn.setAttribute('aria-selected', t===name);
+  });
+}
+
+/* ---------- Universal action reporter ---------- */
+document.querySelectorAll('.card').forEach(function(card){
+  var msg = document.createElement('div');
+  msg.className = 'msg';
+  card.appendChild(msg);
+});
+function slotFor(el){
+  var card = el.closest('.card');
+  return card ? card.querySelector('.msg') : null;
+}
+function report(el, text){
+  var slot = slotFor(el);
+  if(!slot) return;
+  slot.textContent = '✔ ' + text;
+  slot.classList.add('show');
+}
+function describe(el){
+  var tag = el.tagName.toLowerCase();
+  var role = el.getAttribute('role');
+  var aria = el.getAttribute('aria-label');
+  var txt = (el.textContent || '').trim().replace(/\s+/g,' ').slice(0,30);
+  if(el.tagName === 'INPUT'){
+    var type = el.type;
+    var name = aria || el.placeholder || el.id || type;
+    return type + ' "' + name + '"';
+  }
+  if(tag === 'select') return 'dropdown "' + (aria || el.id) + '"';
+  if(role) return role + ' "' + (aria || txt) + '"';
+  if(tag === 'button') return 'button "' + txt + '"';
+  return tag + ' "' + txt + '"';
+}
+
+document.addEventListener('click', function(e){
+  var el = e.target.closest('button, [role=option], [role=menuitem]');
+  if(!el) return;
+  report(el, 'Clicked ' + describe(el));
+}, true);
+
+document.addEventListener('focus', function(e){
+  var el = e.target;
+  if(el.tagName === 'INPUT' && (el.type==='text'||el.type==='search'||el.type==='password'||el.type==='number')){
+    if(!el.disabled) report(el, 'Focused ' + describe(el));
+  }
+}, true);
+
+document.addEventListener('change', function(e){
+  var el = e.target;
+  if(el.type === 'checkbox'){
+    report(el, describe(el) + ' → ' + (el.checked ? 'CHECKED' : 'unchecked'));
+  } else if(el.type === 'radio'){
+    report(el, 'Selected ' + describe(el));
+  } else if(el.tagName === 'SELECT' && el.multiple){
+    var chosen = Array.from(el.selectedOptions).map(function(o){return o.value;}).join(', ') || 'none';
+    report(el, describe(el) + ' → selected [' + chosen + ']');
+  } else if(el.tagName === 'SELECT'){
+    report(el, describe(el) + ' → selected "' + el.value + '"');
+  } else if(el.type === 'range'){
+    report(el, describe(el) + ' → value ' + el.value);
+  } else if(el.type === 'date' || el.type === 'time' || el.type === 'datetime-local'){
+    report(el, describe(el) + ' → ' + el.value);
+  }
+});
+
+document.addEventListener('input', function(e){
+  var el = e.target;
+  if(el.type === 'text' || el.type === 'search' || el.type === 'password'){
+    report(el, 'Typed into ' + describe(el) + ' → "' + el.value + '"');
+  } else if(el.tagName === 'TEXTAREA'){
+    report(el, 'Typed into textarea → "' + el.value + '"');
+  } else if(el.type === 'range'){
+    report(el, describe(el) + ' → value ' + el.value);
+  }
+});
+
+/* ---------- Textboxes ---------- */
+function togglePassword(){
+  var f = document.getElementById('tb-pass');
+  f.type = f.type === 'password' ? 'text' : 'password';
+  report(f, 'Password visibility → ' + (f.type === 'text' ? 'SHOWN' : 'HIDDEN'));
+}
+function clearField(id){
+  var f = document.getElementById(id);
+  f.value = '';
+  report(f, describe(f) + ' cleared');
+}
+
+/* ---------- Checkboxes ---------- */
+function toggleAllHobbies(master){
+  document.querySelectorAll('.hobby').forEach(function(h){ h.checked = master.checked; });
+  report(master, 'Select All → ' + (master.checked ? 'all hobbies CHECKED' : 'all hobbies UNCHECKED'));
+}
+function hobbyChanged(){
+  var boxes = document.querySelectorAll('.hobby');
+  var checked = Array.from(boxes).filter(function(b){return b.checked;});
+  var master = document.getElementById('cb-all');
+  master.checked = checked.length === boxes.length;
+  master.indeterminate = checked.length > 0 && checked.length < boxes.length;
+  report(master, checked.length + ' of ' + boxes.length + ' hobbies checked');
+}
+
+/* ---------- Radios ---------- */
+function showPayField(which){
+  document.getElementById('pay-card').style.display = which === 'card' ? 'block' : 'none';
+  document.getElementById('pay-upi').style.display = which === 'upi' ? 'block' : 'none';
+}
+
+/* ---------- Custom dropdown ---------- */
+function toggleCustomDropdown(){
+  var menu = document.getElementById('cd-menu');
+  var btn = document.getElementById('cd-btn');
+  var open = !menu.classList.contains('open');
+  menu.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+function selectCustomOption(el, name){
+  document.querySelectorAll('#cd-menu [role=option]').forEach(function(o){ o.setAttribute('aria-selected','false'); });
+  el.setAttribute('aria-selected','true');
+  document.getElementById('cd-btn').textContent = name + ' ▾';
+  document.getElementById('cd-menu').classList.remove('open');
+  document.getElementById('cd-btn').setAttribute('aria-expanded','false');
+  report(el, 'Custom dropdown → selected "' + name + '"');
+}
+
+/* ---------- Autocomplete ---------- */
+var FRUITS = ['Apple','Apricot','Banana','Mango','Melon','Orange','Papaya'];
+function filterAutocomplete(value){
+  var list = document.getElementById('ac-list');
+  var q = value.trim().toLowerCase();
+  var matches = q ? FRUITS.filter(function(f){ return f.toLowerCase().indexOf(q) !== -1; }) : [];
+  list.innerHTML = '';
+  if(matches.length === 0){ list.style.display = 'none'; return; }
+  matches.forEach(function(f){
+    var opt = document.createElement('div');
+    opt.setAttribute('role','option');
+    opt.textContent = f;
+    opt.onclick = function(){
+      document.getElementById('ac-input').value = f;
+      list.style.display = 'none';
+      report(opt, 'Autocomplete → selected "' + f + '"');
+    };
+    list.appendChild(opt);
+  });
+  list.style.display = 'block';
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.ac-wrap')){
+    var list = document.getElementById('ac-list');
+    if(list) list.style.display = 'none';
+  }
+});
+
+/* ---------- Mouse actions ---------- */
+var clickCount = 0;
+function incrementCounter(){
+  clickCount++;
+  var btn = document.getElementById('click-counter');
+  btn.textContent = 'Clicked ' + clickCount + ' times';
+  report(btn, 'Click count = ' + clickCount);
+}
+function openContextMenu(e){
+  e.preventDefault();
+  var menu = document.getElementById('ctx-menu');
+  menu.classList.add('open');
+  return false;
+}
+function closeContextMenu(){
+  document.getElementById('ctx-menu').classList.remove('open');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#ctx-menu') && !e.target.closest('#ctx-target')) closeContextMenu();
+});
+function showHoverMenu(){ document.getElementById('hover-menu').classList.add('open'); }
+function hideHoverMenu(){ document.getElementById('hover-menu').classList.remove('open'); }
+
+/* ---------- Drag and drop ---------- */
+function onDragStart(e){
+  e.dataTransfer.setData('text/plain', e.target.id);
+}
+function onDragOver(e){
+  e.preventDefault();
+  e.currentTarget.classList.add('dragover');
+}
+function onDragLeave(e){
+  e.currentTarget.classList.remove('dragover');
+}
+function onDrop(e){
+  e.preventDefault();
+  var zone = e.currentTarget;
+  zone.classList.remove('dragover');
+  var id = e.dataTransfer.getData('text/plain');
+  var dragged = document.getElementById(id);
+  zone.textContent = '';
+  zone.appendChild(dragged);
+  report(zone, 'Dropped "' + dragged.textContent + '" into drop zone');
+}
+function onFileDrop(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('dragover');
+  var files = e.dataTransfer.files;
+  var name = files && files[0] ? files[0].name : 'no file detected';
+  report(e.currentTarget, 'Dropped file → ' + name);
+}
+
+(function initSortable(){
+  var list = document.getElementById('sortable-list');
+  var dragEl = null;
+  list.querySelectorAll('li').forEach(function(li){
+    li.addEventListener('dragstart', function(){
+      dragEl = li;
+      li.classList.add('dragging');
+    });
+    li.addEventListener('dragend', function(){
+      li.classList.remove('dragging');
+      report(list, 'New order: ' + Array.from(list.children).map(function(x){return x.textContent;}).join(' → '));
+    });
+    li.addEventListener('dragover', function(e){
+      e.preventDefault();
+      if(li !== dragEl) li.classList.add('drag-over');
+    });
+    li.addEventListener('dragleave', function(){ li.classList.remove('drag-over'); });
+    li.addEventListener('drop', function(e){
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      if(li === dragEl) return;
+      var items = Array.from(list.children);
+      var from = items.indexOf(dragEl);
+      var to = items.indexOf(li);
+      if(from < to) li.after(dragEl); else li.before(dragEl);
+    });
+  });
+})();
+
+/* ---------- Keyboard ---------- */
+function handleEnterSubmit(e, input){
+  if(e.key === 'Enter'){
+    report(input, 'Enter pressed → submitted "' + input.value + '"');
+  }
+}
+function handleShortcut(e, area){
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
+    e.preventDefault();
+    report(area, 'Ctrl+S / Cmd+S intercepted → Save triggered');
+  }
+}
+function handleListboxKeys(e, box){
+  var options = Array.from(box.querySelectorAll('[role=option]'));
+  var current = options.findIndex(function(o){ return o.getAttribute('aria-selected') === 'true'; });
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    current = Math.min(current + 1, options.length - 1);
+    selectKbOption(options[current]);
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    current = Math.max(current - 1, 0);
+    selectKbOption(options[current]);
+  } else if(e.key === 'Enter'){
+    report(box, 'Enter pressed → confirmed "' + options[current].textContent + '"');
+  }
+}
+function selectKbOption(el){
+  el.parentElement.querySelectorAll('[role=option]').forEach(function(o){ o.setAttribute('aria-selected','false'); });
+  el.setAttribute('aria-selected','true');
+  report(el, 'Highlighted "' + el.textContent + '"');
+}
+
+/* ---------- Widgets: stepper, rating, tabs, accordion ---------- */
+function stepQty(delta){
+  var input = document.getElementById('qty-input');
+  var val = Math.max(0, Math.min(20, parseInt(input.value || '0', 10) + delta));
+  input.value = val;
+  report(input, 'Quantity → ' + val);
+}
+function setRating(n){
+  var stars = document.querySelectorAll('#star-rating button');
+  stars.forEach(function(s, i){ s.classList.toggle('filled', i < n); });
+  report(stars[n-1], 'Rating set → ' + n + ' star(s)');
+}
+function showOrderTab(name){
+  var tabs = ['details','shipping','reviews'];
+  tabs.forEach(function(t){
+    document.getElementById('op-' + t).style.display = t === name ? 'block' : 'none';
+    document.getElementById('ot-' + t).setAttribute('aria-selected', t === name);
+  });
+}
+function toggleAccordion(header){
+  var expanded = header.getAttribute('aria-expanded') === 'true';
+  header.setAttribute('aria-expanded', !expanded);
+  header.nextElementSibling.hidden = expanded;
+  report(header, header.textContent + ' → ' + (expanded ? 'collapsed' : 'expanded'));
+}
+
+/* ---------- Scrolling ---------- */
+function loadMoreItems(){
+  var list = document.getElementById('load-more-list');
+  var count = list.children.length;
+  for(var i = 1; i <= 2; i++){
+    var li = document.createElement('li');
+    li.textContent = 'Item ' + (count + i);
+    list.appendChild(li);
+  }
+  report(document.querySelector('button[onclick="loadMoreItems()"]'), 'Loaded more → now ' + list.children.length + ' items');
+}
+</script>
+
+</body>
+</html>
