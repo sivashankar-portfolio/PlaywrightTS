@@ -9,7 +9,7 @@ test.use({channel:'msedge'})
 test('Practise getByRole',async ({page})=>{
 
 
-    await page.goto("http://127.0.0.1:5500/playwright-locator-practice-simple_1.html");
+    await page.goto("http://127.0.0.1:8080/playwright-locator-practice-simple_1.html");
 
    const country =  page.getByRole('combobox',{name:'Select Country'});
 
@@ -31,7 +31,7 @@ test('Practise getByRole',async ({page})=>{
 
 test('Practise handling popups, dialogs, downloads and uploads', async ({ page, context }) => {
 
-  await page.goto("http://127.0.0.1:5500/tests/playwright-locator-practice-simple_1.html");
+  await page.goto("http://127.0.0.1:8080/tests/playwright-locator-practice-simple_1.html");
 
   // ------------------------------------------------------------------
   // 1) JS DIALOGS: alert / confirm / prompt

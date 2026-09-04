@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 test('filter scenario', async ({ page }) => {
-    await page.goto('http://127.0.0.1:5500/tests/FilteringLocators.html');
+    await page.goto('http://127.0.0.1:8080/tests/FilteringLocators.html');
 
     await page.getByRole('listitem').filter({ hasText: 'Product 2' })
         .getByRole('button', { name: 'Add to cart' }).click();
@@ -11,6 +11,7 @@ test('filter scenario', async ({ page }) => {
     const filename = path.join(dirname, 'test-results', `screenshots`, `screenshot_${Date.now()}.png`);
 
     await page.screenshot({ path: filename, fullPage: true })
+    
 
     const locator = page.getByRole('listitem').filter({ hasNotText: 'Out of stock' });
 
@@ -25,7 +26,7 @@ test('filter scenario', async ({ page }) => {
 test('Identify using hasNot', async ({ page }) => {
 
 
-    await page.goto('http://127.0.0.1:5500/tests/FilteringLocators.html');
+    await page.goto('http://127.0.0.1:8080/tests/FilteringLocators.html');
 
     await page.getByRole('listitem')
         .filter({ hasNot: page.getByRole('heading', { name: 'Product 2' }) }).getByRole('button', { name: 'Add to cart' })
@@ -38,7 +39,7 @@ test('Identify using hasNot', async ({ page }) => {
 
 test('using visible:true', async ({ page }) => {
 
-    await page.goto('http://127.0.0.1:5500/tests/FilteringLocators_Visibility.html');
+    await page.goto('http://127.0.0.1:8080/tests/FilteringLocators_Visibility.html');
 
     await page.locator('button').filter({ visible: true }).click();
 
@@ -47,7 +48,7 @@ test('using visible:true', async ({ page }) => {
 
 test('asset all item in list ', async ({ page }) => {
 
-    await page.goto('http://127.0.0.1:5500/tests/FilteringLocators_Visibility.html');
+    await page.goto('http://127.0.0.1:8080/tests/FilteringLocators_Visibility.html');
 
     const list = page.getByRole('listitem');
 
@@ -58,7 +59,7 @@ test('asset all item in list ', async ({ page }) => {
 
 test('Filter chanining', async ({ page }) => {
 
-    await page.goto('http://127.0.0.1:5500/tests/Filterchaining.html');
+    await page.goto('http://127.0.0.1:8080/tests/Filterchaining.html');
 
     const list = page.getByRole('listitem');
 

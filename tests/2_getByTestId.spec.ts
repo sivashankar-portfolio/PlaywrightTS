@@ -4,7 +4,7 @@ import {test,expect,Page} from '@playwright/test';
 async function testBody({page}:{page:Page})
 {
 
-await page.goto(`http://127.0.0.1:5500/tests/login.html`,{timeout:10000});
+await page.goto(`http://127.0.0.1:8080/tests/login.html`,{timeout:10000});
 
 //getByTestId -> By default looks data-testid atrribute 
 await page.getByTestId(`login-button`).click();

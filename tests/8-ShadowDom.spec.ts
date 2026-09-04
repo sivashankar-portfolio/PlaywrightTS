@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 
 test('Shadow DOM',async ({page})=>{
 
-await page.goto('http://127.0.0.1:5500/tests/playwright-locator-practice-simple_1.html');
+await page.goto('http://127.0.0.1:8080/tests/playwright-locator-practice-simple_1.html');
 
 await page.locator(`#maintab-shadow`).click();
 

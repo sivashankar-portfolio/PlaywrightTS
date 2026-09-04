@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Playwright Visual Testing Practice</title>
+<style>
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    color:#1f2933;
+    background:#f4f7fb;
+    margin:0;
+    padding:24px 20px 60px;
+    line-height:1.45;
+  }
+  h1{font-size:24px;margin-bottom:4px;color:#4338ca;}
+  h2{
+    font-size:15px;margin-top:34px;
+    color:#0369a1;
+    border-left:4px solid #0ea5e9;
+    padding:4px 0 4px 10px;
+    text-transform:uppercase;letter-spacing:.03em;
+  }
+  .card{
+    border:1px solid #dbe3ec;
+    border-left:4px solid #6366f1;
+    background:#ffffff;
+    border-radius:8px;
+    padding:12px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .label{font-weight:bold;font-size:13px;margin-bottom:8px;color:#c026d3;}
+  .hint{font-size:12px;color:#64748b;margin-top:6px;}
+  code{
+    display:block;
+    background:#f8fafc;
+    color:#334155;
+    border:1px solid #e2e8f0;
+    border-left:3px solid #6366f1;
+    border-radius:6px;
+    padding:7px 10px;
+    margin-top:8px;
+    font-size:12.5px;
+    white-space:pre-wrap;
+    font-family:"SF Mono",Consolas,Menlo,monospace;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  a{color:#2563eb;}
+  button{
+    background:#6366f1;color:#fff;border:none;
+    padding:8px 14px;border-radius:6px;font-size:14px;cursor:pointer;
+  }
+  button:hover{background:#4f46e5;}
+  button:disabled{background:#cbd5e1;color:#64748b;cursor:not-allowed;}
+
+  .maintabs{margin:16px 0;}
+  .maintab-btn{
+    background:#e0e7ff;color:#4338ca;border:1px solid #c7d2fe;
+    padding:9px 18px;font-size:14px;cursor:pointer;
+    margin-right:6px;margin-bottom:6px;border-radius:6px 6px 0 0;font-weight:600;
+  }
+  .maintab-btn[aria-selected="true"]{background:#4338ca;color:#fff;border-color:#4338ca;}
+  .maintabpanel{display:none;}
+  .maintabpanel.active{display:block;}
+
+  /* ---- Dynamic content demo ---- */
+  .clock{font-family:"SF Mono",Consolas,Menlo,monospace;font-size:15px;font-weight:700;color:#4338ca;background:#eef2ff;display:inline-block;padding:6px 12px;border-radius:6px;}
+  .avatar{
+    width:56px;height:56px;border-radius:50%;
+    background:linear-gradient(135deg,#6366f1,#c026d3);
+    display:inline-flex;align-items:center;justify-content:center;
+    color:#fff;font-weight:700;font-size:20px;
+  }
+  .badge-count{
+    display:inline-block;background:#ef4444;color:#fff;font-size:11px;font-weight:700;
+    padding:2px 7px;border-radius:999px;margin-left:6px;
+  }
+
+  /* ---- Animation demo ---- */
+  .spinner{
+    width:34px;height:34px;border:4px solid #e0e7ff;border-top-color:#6366f1;border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .pulse-dot{
+    width:14px;height:14px;border-radius:50%;background:#22c55e;display:inline-block;
+    animation:pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.3);}}
+  .slide-banner{
+    background:#4338ca;color:#fff;padding:10px 14px;border-radius:8px;
+    animation:slide 3s ease-in-out infinite alternate;
+  }
+  @keyframes slide{from{transform:translateX(0);}to{transform:translateX(40px);}}
+  .fade-toast{
+    background:#111827;color:#fff;padding:8px 14px;border-radius:6px;display:inline-block;
+    animation:fade 2s ease-in-out infinite;
+  }
+  @keyframes fade{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+  /* ---- Layout shift / component states ---- */
+  .btn-group{display:flex;gap:8px;flex-wrap:wrap;}
+  .state-btn{padding:8px 16px;border-radius:6px;border:1px solid #c7d2fe;background:#fff;color:#3730a3;cursor:pointer;font-size:13.5px;}
+  .state-btn.hover-demo:hover{background:#eef2ff;border-color:#6366f1;}
+  .state-btn.active-demo:active{background:#4338ca;color:#fff;}
+  .state-btn.focus-demo:focus{outline:3px solid #a5b4fc;outline-offset:2px;}
+
+  .price-card{
+    border:1px solid #c7d2fe;border-radius:10px;padding:16px;width:200px;background:#fff;
+    text-align:center;
+  }
+  .price-card .price{font-size:26px;font-weight:800;color:#4338ca;}
+  .price-card.discounted .price{color:#dc2626;}
+  .strike{text-decoration:line-through;color:#94a3b8;font-size:13px;}
+
+  .skeleton{
+    height:16px;border-radius:4px;margin-bottom:8px;
+    background:linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 37%,#e2e8f0 63%);
+    background-size:400% 100%;
+    animation:shimmer 1.4s ease infinite;
+  }
+  @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}
+
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;max-width:520px;}
+  .tile{
+    background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:14px;text-align:center;
+    color:#3730a3;font-weight:600;font-size:13px;
+  }
+
+  /* ---- Theme toggle demo ---- */
+  .theme-box{border-radius:10px;padding:18px;transition:background .2s,color .2s;}
+  .theme-box.light{background:#ffffff;color:#1f2933;border:1px solid #e2e8f0;}
+  .theme-box.dark{background:#0f172a;color:#e2e8f0;border:1px solid #1e293b;}
+
+  /* ---- Responsive demo ---- */
+  .responsive-box{
+    border:1px solid #c7d2fe;border-radius:8px;padding:14px;background:#f8fafc;
+    display:flex;gap:10px;flex-wrap:wrap;
+  }
+  .responsive-box .col{flex:1 1 220px;background:#eef2ff;border-radius:6px;padding:10px;color:#3730a3;font-size:13px;}
+
+  /* ---- Broken layout demo (intentional visual bug toggle) ---- */
+  .nav-demo{display:flex;gap:14px;background:#4338ca;padding:10px 16px;border-radius:8px;color:#fff;align-items:center;}
+  .nav-demo.bug{padding-top:40px;}
+  .nav-demo a{color:#e0e7ff;text-decoration:none;font-size:13.5px;}
+
+  .status-pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;}
+  .status-pill.ok{background:#dcfce7;color:#166534;}
+  .status-pill.warn{background:#fef9c3;color:#854d0e;}
+  .status-pill.err{background:#fee2e2;color:#991b1b;}
+
+  .msg{
+    margin-top:8px;padding:7px 10px;border:1px solid #c7d2fe;border-radius:6px;
+    background:#eef2ff;color:#4338ca;font-weight:600;font-size:12.5px;min-height:16px;display:none;
+  }
+  .msg.show{display:block;}
+</style>
+</head>
+<body>
+
+  <h1>Playwright Visual Testing Practice</h1>
+  <p>Each card demonstrates something visual-regression tests commonly deal with: dynamic content that needs masking, running animations that need disabling, hover/focus/active states, loading skeletons, responsive layouts, and theme switches. Snippets show the <code style="display:inline;padding:1px 5px;">toHaveScreenshot()</code> pattern to try.</p>
+
+  <div class="maintabs" role="tablist" aria-label="Visual testing categories">
+    <button class="maintab-btn" role="tab" id="maintab-basics" aria-selected="true" aria-controls="panel-basics" onclick="showMainTab('basics')">1. Screenshot Basics</button>
+    <button class="maintab-btn" role="tab" id="maintab-dynamic" aria-selected="false" aria-controls="panel-dynamic" onclick="showMainTab('dynamic')">2. Dynamic Content &amp; Masking</button>
+    <button class="maintab-btn" role="tab" id="maintab-animation" aria-selected="false" aria-controls="panel-animation" onclick="showMainTab('animation')">3. Animations</button>
+    <button class="maintab-btn" role="tab" id="maintab-states" aria-selected="false" aria-controls="panel-states" onclick="showMainTab('states')">4. UI States</button>
+    <button class="maintab-btn" role="tab" id="maintab-responsive" aria-selected="false" aria-controls="panel-responsive" onclick="showMainTab('responsive')">5. Responsive &amp; Theme</button>
+    <button class="maintab-btn" role="tab" id="maintab-regression" aria-selected="false" aria-controls="panel-regression" onclick="showMainTab('regression')">6. Regression Playground</button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: SCREENSHOT BASICS                                      -->
+  <!-- ============================================================ -->
+  <div id="panel-basics" class="maintabpanel active" role="tabpanel" aria-labelledby="maintab-basics">
+
+    <h2>Full Page Screenshot</h2>
+    <div class="card">
+      <div class="label">Compare the Whole Page</div>
+      <p style="font-size:13px;color:#475569;">Baseline is created on first run; subsequent runs diff against it pixel-by-pixel.</p>
+      <code>await expect(page).toHaveScreenshot('visual-practice-full.png', { fullPage: true });
+// First run writes the baseline; re-run after a visual change to see it fail with a diff.</code>
+    </div>
+
+    <h2>Element Screenshot</h2>
+    <div class="card">
+      <div class="label">Single Component</div>
+      <div class="price-card" id="basic-price-card">
+        <div>Pro Plan</div>
+        <div class="price">$29/mo</div>
+        <div style="font-size:12px;color:#64748b;">Billed monthly</div>
+      </div>
+      <code>await expect(page.locator('#basic-price-card')).toHaveScreenshot('price-card.png');
+// XPath: //*[@id='basic-price-card']</code>
+    </div>
+
+    <h2>Clipped Region</h2>
+    <div class="card">
+      <div class="label">Screenshot a Specific Rectangle of the Page</div>
+      <p style="font-size:13px;color:#475569;">Useful when you only care about one corner (e.g. a header) regardless of what's below it.</p>
+      <code>await expect(page).toHaveScreenshot('clipped-region.png', {
+  clip: { x: 0, y: 0, width: 400, height: 150 }
+});</code>
+    </div>
+
+    <h2>Comparison Thresholds</h2>
+    <div class="card">
+      <div class="label">Tolerating Minor Pixel Noise</div>
+      <p style="font-size:13px;color:#475569;">Anti-aliasing and font rendering differ slightly across OS/CI machines — thresholds absorb that noise without hiding real regressions.</p>
+      <code>await expect(page.locator('#basic-price-card')).toHaveScreenshot('price-card.png', {
+  maxDiffPixelRatio: 0.02,   // allow up to 2% of pixels to differ
+  threshold: 0.2             // per-pixel color-difference sensitivity (0-1)
+});</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 2: DYNAMIC CONTENT & MASKING                              -->
+  <!-- ============================================================ -->
+  <div id="panel-dynamic" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-dynamic">
+
+    <h2>Live Clock (changes every second)</h2>
+    <div class="card">
+      <div class="label">Timestamp That Would Fail Every Run</div>
+      <div class="clock" id="live-clock">--:--:--</div>
+      <code>// Option A: mask it out of the comparison
+await expect(page).toHaveScreenshot('with-clock.png', {
+  mask: [page.locator('#live-clock')]
+});
+
+// Option B: freeze the value instead of masking
+await page.evaluate(() => { document.getElementById('live-clock').textContent = '12:00:00'; });</code>
+      <div class="hint">mask draws a solid box over the element before comparing — the region is excluded from pixel diffing entirely.</div>
+    </div>
+
+    <h2>Randomized Content</h2>
+    <div class="card">
+      <div class="label">Avatar with Random Gradient + Notification Count</div>
+      <div class="row">
+        <div class="avatar" id="random-avatar" style="background:linear-gradient(135deg,#6366f1,#c026d3);">SK</div>
+        <span>Inbox<span class="badge-count" id="random-badge">7</span></span>
+        <button onclick="randomizeDynamic()">Randomize</button>
+      </div>
+      <code>await expect(page).toHaveScreenshot('dashboard.png', {
+  mask: [page.locator('#random-avatar'), page.locator('#random-badge')]
+});</code>
+    </div>
+
+    <h2>Date-dependent Text</h2>
+    <div class="card">
+      <div class="label">"Today" Label</div>
+      <p id="today-label" style="font-weight:600;color:#334155;"></p>
+      <code>// Freeze the clock so relative dates render identically every run
+await page.clock.install({ time: new Date('2026-01-01T00:00:00') });
+await page.reload();
+await expect(page.locator('#today-label')).toHaveScreenshot('today-label.png');</code>
+    </div>
+
+    <h2>Third-party / Ad Slot</h2>
+    <div class="card">
+      <div class="label">Unpredictable External Content Block</div>
+      <div style="border:1px dashed #94a3b8;border-radius:8px;padding:20px;text-align:center;color:#94a3b8;font-size:12px;" id="ad-slot">AD SLOT — content varies per load</div>
+      <code>// Mask by CSS selector directly, no locator needed
+await expect(page).toHaveScreenshot('page-with-ad.png', {
+  mask: [page.locator('#ad-slot')],
+  maskColor: '#FF00FF'   // optional: pick an obvious mask color for debugging
+});</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 3: ANIMATIONS                                             -->
+  <!-- ============================================================ -->
+  <div id="panel-animation" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-animation">
+
+    <h2>CSS Spinner</h2>
+    <div class="card">
+      <div class="label">Infinite Rotation — Every Screenshot Would Differ</div>
+      <div class="spinner"></div>
+      <code>// Playwright disables CSS animations/transitions automatically when this option is set
+await expect(page).toHaveScreenshot('with-spinner.png', { animations: 'disabled' });
+// animations:'disabled' finishes/removes running CSS animations & transitions before capturing</code>
+    </div>
+
+    <h2>Pulsing Status Dot</h2>
+    <div class="card">
+      <div class="label">Scale + Opacity Pulse</div>
+      <div class="row"><span class="pulse-dot"></span> <span>Live</span></div>
+      <code>test.use({ /* project-level default */ });
+// or per-assertion:
+await expect(page.locator('.pulse-dot')).toHaveScreenshot('pulse-dot.png', { animations: 'disabled' });</code>
+    </div>
+
+    <h2>Sliding Banner</h2>
+    <div class="card">
+      <div class="label">Continuous Transform Animation</div>
+      <div class="slide-banner">🎉 Free shipping this week!</div>
+      <code>await expect(page).toHaveScreenshot('banner.png', { animations: 'disabled' });
+// Without this, the banner's X position at capture time is non-deterministic → flaky diffs.</code>
+    </div>
+
+    <h2>Fading Toast</h2>
+    <div class="card">
+      <div class="label">Opacity Loop</div>
+      <div class="fade-toast">Saved successfully</div>
+      <code>// Global config alternative — apply to every toHaveScreenshot() call in the project:
+// playwright.config.ts
+export default defineConfig({
+  expect: { toHaveScreenshot: { animations: 'disabled' } }
+});</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 4: UI STATES                                              -->
+  <!-- ============================================================ -->
+  <div id="panel-states" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-states">
+
+    <h2>Hover / Focus / Active States</h2>
+    <div class="card">
+      <div class="label">Capture a Non-default State</div>
+      <div class="btn-group">
+        <button class="state-btn hover-demo" id="hover-target">Hover Me</button>
+        <button class="state-btn focus-demo" id="focus-target">Focus Me</button>
+        <button class="state-btn active-demo" id="active-target">Press Me</button>
+      </div>
+      <code>await page.locator('#hover-target').hover();
+await expect(page.locator('#hover-target')).toHaveScreenshot('button-hover.png');
+
+await page.locator('#focus-target').focus();
+await expect(page.locator('#focus-target')).toHaveScreenshot('button-focus.png');
+// XPath: //*[@id='hover-target']</code>
+    </div>
+
+    <h2>Disabled vs Enabled</h2>
+    <div class="card">
+      <div class="label">Toggle Disabled State</div>
+      <div class="row">
+        <button id="toggle-disable-target">Submit</button>
+        <button onclick="document.getElementById('toggle-disable-target').disabled = !document.getElementById('toggle-disable-target').disabled;">Toggle Disabled</button>
+      </div>
+      <code>await expect(page.locator('#toggle-disable-target')).toHaveScreenshot('submit-enabled.png');
+await page.getByRole('button', { name: 'Toggle Disabled' }).click();
+await expect(page.locator('#toggle-disable-target')).toHaveScreenshot('submit-disabled.png');</code>
+    </div>
+
+    <h2>Sale Price / Conditional Styling</h2>
+    <div class="card">
+      <div class="label">Discounted vs Regular Card</div>
+      <div class="row">
+        <div class="price-card" id="normal-card">
+          <div>Basic Plan</div>
+          <div class="price">$19/mo</div>
+        </div>
+        <div class="price-card discounted" id="discount-card">
+          <div>Basic Plan</div>
+          <div class="strike">$19/mo</div>
+          <div class="price">$12/mo</div>
+        </div>
+      </div>
+      <code>await expect(page.locator('#discount-card')).toHaveScreenshot('discounted-card.png');
+// A common visual bug: the "discounted" style class shipped but the strike-through price is missing.</code>
+    </div>
+
+    <h2>Loading Skeleton vs Loaded Content</h2>
+    <div class="card">
+      <div class="label">Two Distinct Visual States for the Same Component</div>
+      <div class="row">
+        <div style="width:180px;">
+          <div class="skeleton" style="width:100%;"></div>
+          <div class="skeleton" style="width:70%;"></div>
+          <div class="skeleton" style="width:90%;"></div>
+        </div>
+        <button onclick="report(this,'Simulated: switch to loaded state before asserting')">Simulate Loaded</button>
+      </div>
+      <code>// Wait for the loading state to fully resolve before snapshotting —
+// never screenshot a skeleton/spinner state unintentionally.
+await expect(page.locator('.skeleton')).toHaveCount(0);
+await expect(page.locator('#content-loaded')).toHaveScreenshot('loaded-state.png');</code>
+    </div>
+
+    <h2>Grid Layout</h2>
+    <div class="card">
+      <div class="label">Multi-tile Layout (order/wrap sensitive)</div>
+      <div class="card-grid" id="tile-grid">
+        <div class="tile">Tile A</div><div class="tile">Tile B</div><div class="tile">Tile C</div>
+        <div class="tile">Tile D</div><div class="tile">Tile E</div><div class="tile">Tile F</div>
+      </div>
+      <code>await expect(page.locator('#tile-grid')).toHaveScreenshot('tile-grid.png');
+// Grid/flex reflow bugs (wrong wrap, wrong gap) show up clearly in a full-grid screenshot
+// even when each tile individually looks correct.</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 5: RESPONSIVE & THEME                                     -->
+  <!-- ============================================================ -->
+  <div id="panel-responsive" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-responsive">
+
+    <h2>Viewport Sizes</h2>
+    <div class="card">
+      <div class="label">Same Component, Different Viewports</div>
+      <div class="responsive-box" id="responsive-demo">
+        <div class="col">Column 1</div>
+        <div class="col">Column 2</div>
+        <div class="col">Column 3</div>
+      </div>
+      <code>for (const vp of [{width:375,height:667},{width:768,height:1024},{width:1440,height:900}]) {
+  await page.setViewportSize(vp);
+  await expect(page.locator('#responsive-demo')).toHaveScreenshot(`responsive-${vp.width}.png`);
+}
+// XPath: //*[@id='responsive-demo']</code>
+      <div class="hint">Resize your browser window (or DevTools device toolbar) to see the columns wrap — that's the layout shift the loop above captures per breakpoint.</div>
+    </div>
+
+    <h2>Light / Dark Theme</h2>
+    <div class="card">
+      <div class="label">Toggle Theme Before Snapshotting</div>
+      <div class="theme-box light" id="theme-box">
+        <strong>Card Title</strong>
+        <p style="margin:6px 0 0;font-size:13px;">Body copy that must stay readable in both themes.</p>
+      </div>
+      <div class="row" style="margin-top:8px;"><button onclick="toggleThemeDemo()">Toggle Theme</button></div>
+      <code>await expect(page.locator('#theme-box')).toHaveScreenshot('theme-light.png');
+await page.getByRole('button', { name: 'Toggle Theme' }).click();
+await expect(page.locator('#theme-box')).toHaveScreenshot('theme-dark.png');
+
+// Or drive the OS-level preference directly, no UI toggle needed:
+await page.emulateMedia({ colorScheme: 'dark' });</code>
+    </div>
+
+    <h2>Text Zoom / Font Scaling</h2>
+    <div class="card">
+      <div class="label">Overflow Under Larger Font Sizes</div>
+      <div style="border:1px solid #c7d2fe;border-radius:8px;padding:10px;width:180px;overflow:hidden;" id="zoom-demo">
+        <span style="white-space:nowrap;">Non-wrapping label text</span>
+      </div>
+      <code>await page.locator('#zoom-demo').evaluate(el => el.style.fontSize = '20px');
+await expect(page.locator('#zoom-demo')).toHaveScreenshot('zoom-demo.png');
+// Reveals truncation/overflow bugs that only appear at larger font sizes (accessibility zoom).</code>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 6: REGRESSION PLAYGROUND                                  -->
+  <!-- ============================================================ -->
+  <div id="panel-regression" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-regression">
+
+    <h2>Introduce a Visual Bug on Purpose</h2>
+    <div class="card">
+      <div class="label">Broken Nav Padding</div>
+      <div class="nav-demo" id="nav-demo">
+        <a href="#">Home</a><a href="#">Products</a><a href="#">About</a><a href="#">Contact</a>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button onclick="document.getElementById('nav-demo').classList.toggle('bug'); report(this,'Toggled nav bug class')">Toggle Layout Bug</button>
+      </div>
+      <code>// 1) Capture the baseline with the bug class OFF
+await expect(page.locator('#nav-demo')).toHaveScreenshot('nav-baseline.png');
+
+// 2) Click "Toggle Layout Bug", then compare against the SAME baseline name
+await page.getByRole('button', { name: 'Toggle Layout Bug' }).click();
+await expect(page.locator('#nav-demo')).toHaveScreenshot('nav-baseline.png');
+// ^ This assertion should now FAIL with a visible diff highlighting the extra top padding.</code>
+      <div class="hint">This is the core visual-regression workflow: run once to record the baseline, change the UI, re-run to watch it fail, then run with --update-snapshots once the change is intentional.</div>
+    </div>
+
+    <h2>Status Pill Color Regression</h2>
+    <div class="card">
+      <div class="label">Same Text, Wrong Color</div>
+      <div class="row">
+        <span class="status-pill ok" id="status-pill">Operational</span>
+        <button onclick="cycleStatusPill()">Cycle Status</button>
+      </div>
+      <code>await expect(page.locator('#status-pill')).toHaveScreenshot('status-ok.png');
+// A bug that renders "Operational" in red instead of green won't be caught by
+// text-based assertions like toHaveText() — only a screenshot comparison catches
+// a color-only regression like this.</code>
+    </div>
+
+    <h2>Updating Baselines</h2>
+    <div class="card">
+      <div class="label">CLI Reference</div>
+      <code># Run tests and generate/compare screenshots
+npx playwright test
+
+# Accept the current rendering as the new baseline (after an intentional UI change)
+npx playwright test --update-snapshots
+
+# Run only visual tests, useful once they live in their own file/project
+npx playwright test visual.spec.ts</code>
+      <div class="hint">Baselines are OS-specific by default (chromium-darwin, chromium-win32, ...) — commit the ones matching your CI runner, or generate them inside a Docker/CI run so local and CI platforms don't fight over pixel differences.</div>
+    </div>
+
+  </div>
+
+<script>
+/* ---------- Tab switching ---------- */
+function showMainTab(name){
+  var tabs = ['basics','dynamic','animation','states','responsive','regression'];
+  tabs.forEach(function(t){
+    var panel = document.getElementById('panel-' + t);
+    var btn = document.getElementById('maintab-' + t);
+    if(panel) panel.classList.toggle('active', t===name);
+    if(btn) btn.setAttribute('aria-selected', t===name);
+  });
+}
+
+/* ---------- Universal action reporter ---------- */
+document.querySelectorAll('.card').forEach(function(card){
+  var msg = document.createElement('div');
+  msg.className = 'msg';
+  card.appendChild(msg);
+});
+function report(el, text){
+  var card = el.closest('.card');
+  var slot = card ? card.querySelector('.msg') : null;
+  if(!slot) return;
+  slot.textContent = '✔ ' + text;
+  slot.classList.add('show');
+}
+
+/* ---------- Live clock ---------- */
+function tickClock(){
+  var now = new Date();
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  var el = document.getElementById('live-clock');
+  if(el) el.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+/* ---------- Today label ---------- */
+(function(){
+  var el = document.getElementById('today-label');
+  if(el){
+    var d = new Date();
+    el.textContent = 'Today is ' + d.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  }
+})();
+
+/* ---------- Randomized dynamic content ---------- */
+function randomizeDynamic(){
+  var colors = ['#6366f1,#c026d3','#0ea5e9,#22c55e','#f59e0b,#ef4444','#ec4899,#8b5cf6'];
+  var pick = colors[Math.floor(Math.random()*colors.length)];
+  var avatar = document.getElementById('random-avatar');
+  avatar.style.background = 'linear-gradient(135deg,' + pick + ')';
+  document.getElementById('random-badge').textContent = Math.floor(Math.random()*20)+1;
+  report(avatar, 'Randomized avatar gradient and badge count');
+}
+
+/* ---------- Ad slot randomization ---------- */
+(function(){
+  var slot = document.getElementById('ad-slot');
+  var variants = ['AD SLOT — 50% off sale', 'AD SLOT — New arrivals', 'AD SLOT — Free trial today'];
+  if(slot) slot.textContent = variants[Math.floor(Math.random()*variants.length)];
+})();
+
+/* ---------- Theme toggle ---------- */
+function toggleThemeDemo(){
+  var box = document.getElementById('theme-box');
+  var isDark = box.classList.contains('dark');
+  box.classList.toggle('dark', !isDark);
+  box.classList.toggle('light', isDark);
+  report(box, 'Theme switched to ' + (isDark ? 'light' : 'dark'));
+}
+
+/* ---------- Status pill cycling ---------- */
+function cycleStatusPill(){
+  var pill = document.getElementById('status-pill');
+  var states = [
+    { cls:'ok', text:'Operational' },
+    { cls:'warn', text:'Degraded' },
+    { cls:'err', text:'Outage' }
+  ];
+  var current = states.findIndex(function(s){ return pill.classList.contains(s.cls); });
+  var next = states[(current+1) % states.length];
+  states.forEach(function(s){ pill.classList.remove(s.cls); });
+  pill.classList.add(next.cls);
+  pill.textContent = next.text;
+  report(pill, 'Status pill → ' + next.text);
+}
+</script>
+
+</body>
+</html>

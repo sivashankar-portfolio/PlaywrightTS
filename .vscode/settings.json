@@ -1,0 +1,5 @@
+{
+	"playwright.env": {
+		"TEST_DATA_PATH": "./src/resources/testdata/loginTestData.json"
+	}
+}

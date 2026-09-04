@@ -152,6 +152,41 @@
   .scroll-box{height:120px;overflow-y:auto;border:1px solid #c7d2fe;border-radius:8px;padding:8px 10px;background:#f8fafc;}
   .scroll-box p{margin:0 0 40px;color:#334155;font-size:13.5px;}
 
+  .scroll-pos{
+    display:inline-block;font-family:"SF Mono",Consolas,Menlo,monospace;font-size:12px;
+    background:#eef2ff;color:#4338ca;padding:2px 8px;border-radius:6px;font-weight:700;
+  }
+  .hbox{display:flex;gap:10px;overflow-x:auto;padding:10px;max-width:360px;border:1px solid #c7d2fe;border-radius:8px;background:#f8fafc;}
+  .hbox .tile{
+    flex:0 0 auto;width:110px;height:70px;border-radius:8px;background:#6366f1;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;
+  }
+  .hbox .tile:nth-child(3n+2){background:#0ea5e9;}
+  .hbox .tile:nth-child(3n+3){background:#c026d3;}
+
+  .win-scroll-badge{
+    position:fixed;top:10px;right:14px;z-index:50;
+    background:#111827;color:#fff;padding:6px 12px;border-radius:999px;
+    font-family:"SF Mono",Consolas,Menlo,monospace;font-size:12px;font-weight:700;
+    box-shadow:0 4px 10px rgba(0,0,0,.2);
+  }
+
+  .qa-list{display:flex;flex-direction:column;gap:8px;}
+  .qa-item{border:1px solid #c7d2fe;border-radius:8px;background:#fff;overflow:hidden;}
+  .qa-item summary{
+    cursor:pointer;padding:10px 14px;font-weight:600;color:#3730a3;list-style:none;
+    display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:13.5px;
+  }
+  .qa-item summary::-webkit-details-marker{display:none;}
+  .qa-item summary::after{content:'+';color:#6366f1;font-weight:700;font-size:16px;flex:0 0 auto;}
+  .qa-item[open] summary::after{content:'\2212';}
+  .qa-item .qa-answer{padding:0 14px 12px;color:#334155;font-size:13.5px;border-top:1px solid #eef2ff;padding-top:10px;}
+  .qa-company{
+    display:inline-block;background:#e0e7ff;color:#4338ca;font-size:10.5px;font-weight:700;
+    padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;
+  }
+  .qa-note{font-size:12px;color:#64748b;margin:-4px 0 12px;}
+
   iframe{width:100%;height:120px;border:1px solid #c7d2fe;border-radius:8px;}
 
   dialog{border:1px solid #c7d2fe;border-radius:10px;padding:18px;}
@@ -604,6 +639,8 @@ await expect(page.getByRole('tooltip')).toBeVisible();
   <!-- ============================================================ -->
   <div id="panel-advanced" class="maintabpanel" role="tabpanel" aria-labelledby="maintab-advanced">
 
+    <div class="win-scroll-badge">window.scrollY: <span id="win-scroll-pos">0</span></div>
+
     <h2>File Upload</h2>
     <div class="card">
       <div class="label">Direct File Input</div>
@@ -677,6 +714,155 @@ await expect(page.locator('#load-more-list li')).toHaveCount(4);
       <button onclick="document.getElementById('scroll-target').scrollIntoView({behavior:'smooth'}); report(this,'Scrolled target into view');">Scroll to Target Below</button>
       <div id="scroll-target" style="margin-top:900px;padding:14px;border:1px dashed #a5b4fc;border-radius:8px;background:#eef2ff;color:#4338ca;">🎯 You found the scroll target!</div>
       <code>await page.locator('#scroll-target').scrollIntoViewIfNeeded();</code>
+    </div>
+
+    <h2>Mouse Wheel Scrolling — page.mouse.wheel()</h2>
+    <div class="hint" style="margin:-4px 0 12px;">page.mouse.wheel(deltaX, deltaY) scrolls whatever is currently under the mouse pointer — always hover() (or move the mouse over) the target element first.</div>
+    <div class="card">
+      <div class="label">Vertical Mouse Wheel Scroll</div>
+      <div class="row"><span>scrollTop:</span> <span class="scroll-pos" id="mw-vpos">0</span></div>
+      <div class="scroll-box" id="mw-vbox" style="height:130px;margin-top:8px;" onscroll="document.getElementById('mw-vpos').textContent = Math.round(this.scrollTop);">
+        <p>Row 1 — hover this box, then use the mouse wheel.</p>
+        <p>Row 2 — page.mouse.wheel(0, deltaY) scrolls down for positive deltaY.</p>
+        <p>Row 3 — negative deltaY scrolls back up.</p>
+        <p>Row 4 — keep going...</p>
+        <p>Row 5 — almost there...</p>
+        <p>Row 6 — you reached the bottom!</p>
+      </div>
+      <code>const box = page.locator('#mw-vbox');
+await box.hover();
+await page.mouse.wheel(0, 300);   // scroll DOWN 300px
+await page.mouse.wheel(0, -150);  // scroll UP 150px
+await expect(page.locator('#mw-vpos')).not.toHaveText('0');
+// XPath: //*[@id='mw-vbox']</code>
+    </div>
+    <div class="card">
+      <div class="label">Horizontal Mouse Wheel Scroll (deltaX)</div>
+      <div class="row"><span>scrollLeft:</span> <span class="scroll-pos" id="mw-hpos">0</span></div>
+      <div class="hbox" id="mw-hbox" style="margin-top:8px;" onscroll="document.getElementById('mw-hpos').textContent = Math.round(this.scrollLeft);">
+        <div class="tile">Tile 1</div><div class="tile">Tile 2</div><div class="tile">Tile 3</div>
+        <div class="tile">Tile 4</div><div class="tile">Tile 5</div><div class="tile">Tile 6</div>
+        <div class="tile">Tile 7</div><div class="tile">Tile 8</div>
+      </div>
+      <code>const box = page.locator('#mw-hbox');
+await box.hover();
+await page.mouse.wheel(300, 0);   // deltaX scrolls horizontally (shift+wheel in a real browser)
+await expect(page.locator('#mw-hpos')).not.toHaveText('0');
+// XPath: //*[@id='mw-hbox']</code>
+    </div>
+    <div class="card">
+      <div class="label">Mouse Wheel Scrolls the Whole Page (window scroll)</div>
+      <p style="font-size:13.5px;color:#334155;">Watch the black badge in the top-right corner — it tracks <code style="display:inline;padding:1px 5px;">window.scrollY</code> live as you scroll this page.</p>
+      <code>await page.mouse.move(400, 300);   // position the pointer over the page (not inside a scrollable box)
+await page.mouse.wheel(0, 600);
+const y = await page.evaluate(() => window.scrollY);
+expect(y).toBeGreaterThan(0);</code>
+    </div>
+    <div class="card">
+      <div class="label">Infinite Scroll / Lazy Load via Mouse Wheel</div>
+      <div class="scroll-box" id="inf-box" style="height:70px;">
+        <ul id="inf-list" style="margin:0;padding-left:18px;">
+          <li>Item 1</li><li>Item 2</li><li>Item 3</li><li>Item 4</li><li>Item 5</li>
+        </ul>
+        <p id="inf-done" style="display:none;color:#059669;font-weight:700;">✔ All items loaded</p>
+      </div>
+      <code>const box = page.locator('#inf-box');
+await box.hover();
+while (!(await page.locator('#inf-done').isVisible())) {
+  await page.mouse.wheel(0, 400);
+  await page.waitForTimeout(150);   // give the "server" time to append items
+}
+await expect(page.locator('#inf-list li')).toHaveCount(25);
+// XPath: //*[@id='inf-list']/li</code>
+      <div class="hint">Real infinite-scroll tests need a hard bound (max loop count) too — an app bug that never shows the "done" state would otherwise hang the test forever.</div>
+    </div>
+
+    <h2>Programmatic Scrolling — page.evaluate()</h2>
+    <div class="card">
+      <div class="label">Absolute Scroll — element.scrollTo()</div>
+      <div class="scroll-box" id="pev-box">
+        <p>Paragraph 1 — programmatic scroll target.</p>
+        <p>Paragraph 2 — no mouse involved here at all.</p>
+        <p>Paragraph 3 — evaluate() runs this JS inside the page.</p>
+        <p>Paragraph 4 — bottom reached.</p>
+      </div>
+      <code>await page.locator('#pev-box').evaluate(el => el.scrollTo({ top: 300, behavior: 'instant' }));
+// or jump straight to the max: el.scrollTop = el.scrollHeight</code>
+    </div>
+    <div class="card">
+      <div class="label">Relative Scroll — element.scrollBy()</div>
+      <div class="scroll-box" id="pev-box2">
+        <p>Line A — scrollBy() moves relative to the CURRENT position.</p>
+        <p>Line B — unlike scrollTo(), it doesn't need an absolute target.</p>
+        <p>Line C — handy for "scroll a bit more" style steps.</p>
+        <p>Line D — end of box.</p>
+      </div>
+      <code>await page.locator('#pev-box2').evaluate(el => el.scrollBy(0, 100));
+await page.locator('#pev-box2').evaluate(el => el.scrollBy(0, 100)); // call again to scroll further</code>
+    </div>
+    <div class="card">
+      <div class="label">Scroll Whole Page — window.scrollTo() via evaluate</div>
+      <code>// scroll the page to the very bottom
+await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+// scroll the page back to the top (smooth)
+await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));</code>
+      <div class="hint">This is the go-to pattern when there's no visible element to click/hover — e.g. scrolling to force lazy-loaded images or analytics events to fire.</div>
+    </div>
+    <div class="card">
+      <div class="label">scrollIntoView() via evaluate (with options) vs scrollIntoViewIfNeeded()</div>
+      <code>// raw scrollIntoView ALWAYS scrolls, even if already visible, and lets you control alignment
+await page.locator('#scroll-target').evaluate(el => el.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+
+// scrollIntoViewIfNeeded() is Playwright's built-in helper — scrolls ONLY if the element
+// isn't already fully in the viewport. Prefer it for normal action prep; use evaluate()
+// with scrollIntoView() when you need exact alignment (start/center/end) or forced scrolling.
+await page.locator('#scroll-target').scrollIntoViewIfNeeded();</code>
+    </div>
+
+    <h2>Scrolling — Interview Questions</h2>
+    <p class="qa-note">Commonly reported scrolling-related Playwright questions collected from SDET/QA interview-experience write-ups and prep blogs. Company tags reflect where each style of question is most often reported — treat them as the flavor of company that asks this, not a verbatim transcript. Click a question to reveal the answer and try to explain it out loud before you do.</p>
+    <div class="qa-list">
+      <details class="qa-item">
+        <summary>Why does a Playwright click sometimes work without any explicit scroll code? <span class="qa-company">Amazon</span></summary>
+        <div class="qa-answer">Playwright's actionability checks auto-scroll the element into view as part of click()/fill()/etc. before performing the action — you only need manual scrolling (mouse.wheel, evaluate, scrollIntoViewIfNeeded) when the action itself doesn't trigger a scroll, e.g. asserting visibility, hovering to reveal a tooltip, or triggering scroll/lazy-load event handlers.</div>
+      </details>
+      <details class="qa-item">
+        <summary>How do you scroll to the bottom of a page in Playwright, and what are the different ways to do it? <span class="qa-company">Microsoft</span></summary>
+        <div class="qa-answer">Three common approaches: (1) <code style="display:inline;padding:1px 5px;">page.evaluate(() =&gt; window.scrollTo(0, document.body.scrollHeight))</code>, (2) <code style="display:inline;padding:1px 5px;">page.mouse.wheel(0, largeNumber)</code> repeatedly for real user-like scrolling, or (3) <code style="display:inline;padding:1px 5px;">locator.scrollIntoViewIfNeeded()</code> on the last known element (e.g. the final list item).</div>
+      </details>
+      <details class="qa-item">
+        <summary>What's the difference between page.mouse.wheel() and page.evaluate(() =&gt; el.scrollTo(...))? When would you use one over the other? <span class="qa-company">Google</span></summary>
+        <div class="qa-answer">mouse.wheel() dispatches real wheel events at the OS/browser level on whatever is under the cursor — it exercises actual scroll-event listeners, momentum, and lazy-load triggers the same way a user would. evaluate()-based scrolling jumps the DOM scroll position directly via JS, which is faster and more deterministic but bypasses wheel-event listeners, so an infinite-scroll handler bound to a 'scroll' event may not even fire the same way. Use mouse.wheel() when testing scroll-driven UX; use evaluate() when you just need to get an element into position quickly for an unrelated assertion.</div>
+      </details>
+      <details class="qa-item">
+        <summary>How would you test an infinite-scroll / lazy-loading list with Playwright? <span class="qa-company">Flipkart</span></summary>
+        <div class="qa-answer">Loop mouse.wheel() (or evaluate-based scrollBy) while polling for a completion signal — a "no more items" element, a stable item count across two checks, or a max-count reached — and always cap the loop with a hard iteration/time limit so a stuck app can't hang the test. Prefer asserting on a concrete outcome (final item count, a specific item becoming visible) over "scrolled N times".</div>
+      </details>
+      <details class="qa-item">
+        <summary>Can mouse.wheel() scroll a horizontally-scrolling carousel? How? <span class="qa-company">Swiggy</span></summary>
+        <div class="qa-answer">Yes — pass a non-zero deltaX instead of deltaY: <code style="display:inline;padding:1px 5px;">page.mouse.wheel(deltaX, 0)</code>. As with vertical scrolling, hover the carousel first so the wheel event targets it and not the page.</div>
+      </details>
+      <details class="qa-item">
+        <summary>Your mouse.wheel() call isn't scrolling the element you expect — what's the most likely cause? <span class="qa-company">Accenture</span></summary>
+        <div class="qa-answer">mouse.wheel() scrolls based on the pointer's current position, not a locator — if you didn't hover()/move the mouse over the target first (or a preceding action moved the mouse elsewhere), the wheel event fires on whatever element happens to be under the cursor instead.</div>
+      </details>
+      <details class="qa-item">
+        <summary>How do you assert that an element has actually scrolled (verify scroll position) in Playwright? <span class="qa-company">Cognizant</span></summary>
+        <div class="qa-answer">Read the scroll position back out with evaluate() and assert on the value, e.g. <code style="display:inline;padding:1px 5px;">const top = await locator.evaluate(el =&gt; el.scrollTop); expect(top).toBeGreaterThan(0)</code>. There's no built-in toHaveScrollPosition() matcher, so this evaluate + expect pattern is the standard approach.</div>
+      </details>
+      <details class="qa-item">
+        <summary>How do you scroll inside an iframe or a Shadow DOM element? <span class="qa-company">Deloitte</span></summary>
+        <div class="qa-answer">For an iframe, get a frameLocator() first and scroll the element within that frame's context (evaluate/mouse.wheel both work once you're targeting a locator inside the frame). For Shadow DOM, Playwright's locators pierce open shadow roots automatically, so the same scrollIntoViewIfNeeded()/evaluate() calls work directly on the locator — no special API needed for open shadow roots.</div>
+      </details>
+      <details class="qa-item">
+        <summary>Besides the mouse, how else can you scroll a page in Playwright? <span class="qa-company">TCS</span></summary>
+        <div class="qa-answer">Keyboard-driven scrolling: focus a scrollable/focusable element and press keys like PageDown, End, Space, or ArrowDown via <code style="display:inline;padding:1px 5px;">page.keyboard.press('PageDown')</code> — useful for testing keyboard-accessibility of scroll containers, not just mouse behavior.</div>
+      </details>
+      <details class="qa-item">
+        <summary>Why might scroll-triggered tests be flaky, and how do you make them reliable? <span class="qa-company">JPMorgan Chase</span></summary>
+        <div class="qa-answer">smooth-behavior scrolling animates over time, so reading the scroll position immediately after triggering it can catch it mid-animation. Prefer 'instant'/'auto' behavior in tests, or use Playwright's web-first assertions (expect(...).toBeVisible(), toHaveText()) which auto-retry, instead of a single evaluate() read right after the scroll call.</div>
+      </details>
     </div>
 
     <h2>iFrame</h2>
@@ -995,6 +1181,33 @@ function toggleAccordion(header){
 }
 
 /* ---------- Scrolling ---------- */
+window.addEventListener('scroll', function(){
+  var badge = document.getElementById('win-scroll-pos');
+  if(badge) badge.textContent = Math.round(window.scrollY);
+});
+
+(function initInfiniteScroll(){
+  var box = document.getElementById('inf-box');
+  var list = document.getElementById('inf-list');
+  var done = document.getElementById('inf-done');
+  if(!box) return;
+  var MAX = 25;
+  box.addEventListener('scroll', function(){
+    if(list.children.length >= MAX) return;
+    var nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 5;
+    if(nearBottom){
+      var count = list.children.length;
+      var toAdd = Math.min(5, MAX - count);
+      for(var i = 1; i <= toAdd; i++){
+        var li = document.createElement('li');
+        li.textContent = 'Item ' + (count + i);
+        list.appendChild(li);
+      }
+      if(list.children.length >= MAX) done.style.display = 'block';
+    }
+  });
+})();
+
 function loadMoreItems(){
   var list = document.getElementById('load-more-list');
   var count = list.children.length;

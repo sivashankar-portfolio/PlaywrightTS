@@ -1,0 +1,15 @@
+{
+    "base-url":"https://playwright.dev",
+    "user":{
+
+        "name":"Sivashankar",
+        "age":32
+        
+    },
+    "ids":[101,102,103],
+    "loginTestData": [
+        {"username": "standard_user","password": "secret_sauce"},
+        {"username": "locked_out_user","password": "secret_sauce"},
+        {"username": "invalid_user","password": "wrong_password"}
+    ]
+}
