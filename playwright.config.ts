@@ -12,6 +12,7 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+   snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{testName}/{projectName}/{arg}{ext}',
   testDir: './',
   /* Run tests in files in parallel */
   fullyParallel: true,

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Playwright Accessibility Testing Practice</title>
+<style>
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    color:#1f2933;
+    background:#f4f7fb;
+    margin:0;
+    padding:24px 20px 60px;
+    line-height:1.45;
+  }
+  h1{font-size:24px;margin-bottom:4px;color:#4338ca;}
+  h2{
+    font-size:15px;margin-top:34px;
+    color:#0369a1;
+    border-left:4px solid #0ea5e9;
+    padding:4px 0 4px 10px;
+    text-transform:uppercase;letter-spacing:.03em;
+  }
+  .intro{
+    background:#fff;border:1px solid #dbe3ec;border-left:4px solid #4338ca;
+    border-radius:8px;padding:14px 18px;margin-bottom:10px;
+  }
+  .intro code{white-space:pre-wrap;}
+  .card{
+    border:1px solid #dbe3ec;
+    border-left:4px solid #6366f1;
+    background:#ffffff;
+    border-radius:8px;
+    padding:12px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .card.bad{border-left-color:#dc2626;}
+  .card.good{border-left-color:#059669;}
+  .label{font-weight:bold;font-size:13px;margin-bottom:8px;color:#c026d3;}
+  .badge{
+    display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;
+    padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;text-transform:uppercase;
+  }
+  .badge.bad{background:#fee2e2;color:#b91c1c;}
+  .badge.good{background:#d1fae5;color:#047857;}
+  .hint{font-size:12px;color:#64748b;margin-top:6px;}
+  code{
+    display:block;
+    background:#f8fafc;
+    color:#334155;
+    border:1px solid #e2e8f0;
+    border-left:3px solid #6366f1;
+    border-radius:6px;
+    padding:7px 10px;
+    margin-top:8px;
+    font-size:12.5px;
+    white-space:pre-wrap;
+    font-family:"SF Mono",Consolas,Menlo,monospace;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+
+  a{color:#2563eb;}
+
+  button{
+    background:#6366f1;color:#fff;border:none;
+    padding:8px 14px;border-radius:6px;font-size:14px;cursor:pointer;
+  }
+  button:hover{background:#4f46e5;}
+
+  input[type=text],input[type=email]{
+    border:1px solid #94a3b8;border-radius:6px;padding:7px 9px;font-size:14px;background:#fff;font-family:inherit;
+  }
+  input.invalid{border-color:#dc2626;}
+
+  /* ---- skip link ---- */
+  .skip-link{
+    position:absolute;left:-999px;top:auto;background:#111827;color:#fff;
+    padding:10px 16px;border-radius:0 0 8px 0;z-index:100;font-weight:700;font-size:13px;
+  }
+  .skip-link:focus{left:0;top:0;}
+
+  /* ---- landmarks demo ---- */
+  .site-frame{border:1px dashed #a5b4fc;border-radius:8px;overflow:hidden;}
+  .site-frame header, .site-frame nav, .site-frame main, .site-frame footer,
+  .site-frame .div-header, .site-frame .div-nav, .site-frame .div-main, .site-frame .div-footer{
+    padding:8px 12px;font-size:12.5px;
+  }
+  .site-frame header, .site-frame .div-header{background:#eef2ff;color:#3730a3;font-weight:700;}
+  .site-frame nav, .site-frame .div-nav{background:#f0f9ff;color:#075985;}
+  .site-frame nav ul, .site-frame .div-nav ul{margin:0;padding:0;list-style:none;display:flex;gap:12px;}
+  .site-frame main, .site-frame .div-main{background:#fff;color:#334155;}
+  .site-frame footer, .site-frame .div-footer{background:#f1f5f9;color:#64748b;}
+
+  /* ---- headings demo box ---- */
+  .heading-demo{border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;background:#fafbff;}
+  .heading-demo h3{font-size:15px;margin:10px 0 4px;color:#3730a3;}
+  .heading-demo h4{font-size:13px;margin:8px 0 4px;color:#6366f1;}
+  .heading-demo h5{font-size:12px;margin:8px 0 4px;color:#0ea5e9;}
+  .heading-demo p{margin:2px 0;font-size:12.5px;color:#475569;}
+
+  /* ---- contrast demo ---- */
+  .contrast-bad{background:#e5e7eb;color:#c7cad1;padding:10px 14px;border-radius:8px;font-size:14px;}
+  .contrast-good{background:#111827;color:#f9fafb;padding:10px 14px;border-radius:8px;font-size:14px;}
+
+  /* ---- fake button / link ---- */
+  .fake-button{
+    display:inline-block;background:#6366f1;color:#fff;padding:8px 14px;border-radius:6px;
+    font-size:14px;cursor:pointer;user-select:none;
+  }
+  .fake-link{color:#2563eb;text-decoration:underline;cursor:pointer;}
+
+  /* ---- icon-only buttons ---- */
+  .icon-btn{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;padding:0;}
+
+  /* ---- accordion (accessible) ---- */
+  .accordion{border:1px solid #c7d2fe;border-radius:8px;overflow:hidden;}
+  .acc-header{
+    display:block;width:100%;text-align:left;background:#eef2ff;color:#3730a3;
+    border:none;border-bottom:1px solid #c7d2fe;border-radius:0;padding:10px 12px;font-weight:600;
+  }
+  .acc-header[aria-expanded="true"]{background:#4338ca;color:#fff;}
+  .acc-panel{padding:10px 14px;background:#fff;border-bottom:1px solid #eef2ff;font-size:13.5px;color:#334155;}
+
+  /* ---- focus outlines ---- */
+  .no-outline:focus{outline:none;}
+  .good-outline:focus{outline:3px solid #f59e0b;outline-offset:2px;}
+
+  /* ---- modal / focus trap ---- */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(17,24,39,.5);display:none;
+    align-items:center;justify-content:center;z-index:200;
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal-box{
+    background:#fff;border-radius:10px;padding:20px;width:280px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  .modal-box h3{margin-top:0;font-size:15px;color:#3730a3;}
+
+  /* ---- live region ---- */
+  .cart-box{border:1px solid #c7d2fe;border-radius:8px;padding:10px 14px;background:#f8fafc;}
+  .cart-count{font-weight:700;color:#4338ca;}
+
+  /* ---- data table ---- */
+  table{border-collapse:collapse;width:100%;font-size:13px;}
+  table.good th, table.good td{border:1px solid #c7d2fe;padding:6px 10px;text-align:left;}
+  table.good th{background:#eef2ff;color:#3730a3;}
+  table.bad td{padding:4px 8px;}
+
+  /* ---- form field with error ---- */
+  .field-error{color:#b91c1c;font-size:12px;margin-top:4px;display:none;}
+  .field-error.show{display:block;}
+
+  .msg{
+    margin-top:8px;
+    padding:7px 10px;
+    border:1px solid #c7d2fe;
+    border-radius:6px;
+    background:#eef2ff;
+    color:#4338ca;
+    font-weight:600;
+    font-size:12.5px;
+    min-height:16px;
+    display:none;
+  }
+  .msg.show{display:block;}
+</style>
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <h1>Playwright Accessibility Testing Practice</h1>
+  <p>Each topic pairs a <span class="badge bad">bad</span> example with a <span class="badge good">good</span> example, plus the Playwright/axe-core code to catch (or confirm the fix for) the issue. Work top to bottom, or jump to a topic you're practicing.</p>
+
+  <div class="intro">
+    <div class="label" style="margin-bottom:2px;">Setup — automated scanning with axe-core</div>
+    <p style="margin:4px 0 0;font-size:13px;">Most automated checks below use <code style="display:inline;padding:1px 6px;">@axe-core/playwright</code>. Install it once, then scan a whole page or scope it to one component.</p>
+    <code>npm install -D @axe-core/playwright
+
+import AxeBuilder from '@axe-core/playwright';
+
+test('page has no automatically detectable a11y violations', async ({ page }) => {
+  await page.goto('/tests/playwright-accessibility-practice.html');
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+});
+
+// scope to one region and skip rules you're deliberately practicing against
+const results = await new AxeBuilder({ page })
+  .include('#landmarks-demo')
+  .disable(['color-contrast'])
+  .analyze();</code>
+    <div class="hint">axe-core catches missing alt text, missing labels, bad contrast, invalid ARIA, and landmark/heading structure problems automatically. It can NOT catch everything (logical reading order, keyboard traps, meaningful focus order, whether alt text is actually *descriptive*) — those need the manual Playwright checks used throughout this page.</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>1. Images &amp; Alt Text</h2>
+  <div class="card bad">
+    <div class="label">Informative image with NO alt text <span class="badge bad">bad</span></div>
+    <img id="img-bad" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='120' height='60' fill='%236366f1'/%3E%3Ctext x='60' y='34' font-size='12' fill='white' text-anchor='middle'%3EChart%3C/text%3E%3C/svg%3E" width="120" height="60">
+    <div class="hint">Screen readers announce this as just "image" or the filename — the sales-trend information it conveys is lost.</div>
+    <code>// axe-core rule "image-alt" flags this automatically
+const results = await new AxeBuilder({ page }).include('#img-bad').analyze();
+expect(results.violations.map(v => v.id)).toContain('image-alt');</code>
+  </div>
+  <div class="card good">
+    <div class="label">Informative image with descriptive alt text <span class="badge good">good</span></div>
+    <img id="img-good" alt="Quarterly sales trending upward, Q1 to Q4" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Crect width='120' height='60' fill='%23059669'/%3E%3Ctext x='60' y='34' font-size='12' fill='white' text-anchor='middle'%3EChart%3C/text%3E%3C/svg%3E" width="120" height="60">
+    <code>await expect(page.getByRole('img', { name: 'Quarterly sales trending upward, Q1 to Q4' })).toBeVisible();
+// XPath: //img[@alt='Quarterly sales trending upward, Q1 to Q4']</code>
+  </div>
+  <div class="card good">
+    <div class="label">Decorative image with empty alt (correctly hidden from a11y tree) <span class="badge good">good</span></div>
+    <img id="img-decorative" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='18' fill='%23f59e0b'/%3E%3C/svg%3E" width="40" height="40"> a divider dot with no informational value
+    <code>// alt="" is the CORRECT choice for purely decorative images — it removes
+// the image from the accessibility tree instead of forcing an empty announcement
+await expect(page.locator('#img-decorative')).toHaveAttribute('alt', '');
+const imgRole = await page.locator('#img-decorative').evaluate(el => el.matches('[alt=""]'));
+</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>2. Form Labels</h2>
+  <div class="card bad">
+    <div class="label">Input with only a placeholder, no label <span class="badge bad">bad</span></div>
+    <input type="text" id="in-bad" placeholder="Email address">
+    <div class="hint">Placeholder text disappears once typing starts and isn't reliably exposed as the field's accessible name.</div>
+    <code>// getByLabel finds nothing — proves there's no programmatic label
+await expect(page.getByLabel('Email address')).toHaveCount(0);
+// axe-core rule "label" flags this
+const results = await new AxeBuilder({ page }).include('#in-bad').analyze();
+expect(results.violations.map(v => v.id)).toContain('label');</code>
+  </div>
+  <div class="card good">
+    <div class="label">Input with an associated &lt;label for&gt; <span class="badge good">good</span></div>
+    <label for="in-good">Email address</label><br>
+    <input type="email" id="in-good" placeholder="name@example.com">
+    <code>await page.getByLabel('Email address').fill('sivashankar@example.com');
+await expect(page.getByLabel('Email address')).toHaveAccessibleName('Email address');
+// XPath: //label[normalize-space()='Email address']/following::input[1]</code>
+  </div>
+  <div class="card good">
+    <div class="label">Input labelled via aria-labelledby (no visible &lt;label&gt;) <span class="badge good">good</span></div>
+    <span id="qty-label" style="font-weight:600;">Quantity</span><br>
+    <input type="text" id="in-aria" aria-labelledby="qty-label" value="1">
+    <code>await expect(page.getByLabel('Quantity')).toHaveValue('1');
+// XPath: //input[@aria-labelledby='qty-label']</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>3. Buttons &amp; Links (semantics matter)</h2>
+  <div class="card bad">
+    <div class="label">A &lt;div&gt; styled and clicked like a button <span class="badge bad">bad</span></div>
+    <div class="fake-button" id="div-button" onclick="report(this,'div clicked')">Submit Order</div>
+    <div class="hint">Not focusable by Tab, not announced as "button", Enter/Space do nothing by default — keyboard and screen-reader users can't operate it.</div>
+    <code>// getByRole('button') will NOT find this
+await expect(page.getByRole('button', { name: 'Submit Order' })).toHaveCount(0);
+// axe-core rule "button-name" / manual keyboard check
+await page.keyboard.press('Tab'); // never lands here</code>
+  </div>
+  <div class="card good">
+    <div class="label">A real &lt;button&gt; element <span class="badge good">good</span></div>
+    <button id="real-button" onclick="report(this,'button clicked')">Submit Order</button>
+    <code>await page.getByRole('button', { name: 'Submit Order' }).click();
+await expect(page.getByRole('button', { name: 'Submit Order' })).toBeFocused();
+// XPath: //button[normalize-space()='Submit Order']</code>
+  </div>
+  <div class="card bad">
+    <div class="label">Icon-only button with NO accessible name <span class="badge bad">bad</span></div>
+    <button class="icon-btn" id="icon-bad" onclick="report(this,'clicked')">🗑</button>
+    <code>// getByRole with a name finds nothing — the trash emoji isn't reliable alt text
+await expect(page.getByRole('button', { name: 'Delete' })).toHaveCount(0);
+const results = await new AxeBuilder({ page }).include('#icon-bad').analyze();
+expect(results.violations.map(v => v.id)).toContain('button-name');</code>
+  </div>
+  <div class="card good">
+    <div class="label">Icon-only button with aria-label <span class="badge good">good</span></div>
+    <button class="icon-btn" id="icon-good" aria-label="Delete item" onclick="report(this,'clicked')">🗑</button>
+    <code>await page.getByRole('button', { name: 'Delete item' }).click();
+// XPath: //button[@aria-label='Delete item']</code>
+  </div>
+  <div class="card bad">
+    <div class="label">A &lt;span&gt; styled as a link <span class="badge bad">bad</span></div>
+    <span class="fake-link" id="fake-link" onclick="report(this,'navigated (fake)')">View order history</span>
+    <code>await expect(page.getByRole('link', { name: 'View order history' })).toHaveCount(0);</code>
+  </div>
+  <div class="card good">
+    <div class="label">A real &lt;a href&gt; link <span class="badge good">good</span></div>
+    <a href="#main-content" id="real-link">View order history</a>
+    <code>await page.getByRole('link', { name: 'View order history' }).click();
+// XPath: //a[normalize-space()='View order history']</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>4. Heading Structure</h2>
+  <div class="card bad">
+    <div class="label">Skipped heading level (h1 → h4) <span class="badge bad">bad</span></div>
+    <div class="heading-demo" id="heading-bad">
+      <h4>Order Summary</h4>
+      <p>This should logically be an h2 under the page's h1 — jumping straight to h4 breaks the outline screen-reader users navigate by.</p>
+    </div>
+    <code>const levels = await page.locator('#heading-bad :is(h1,h2,h3,h4,h5,h6)').evaluateAll(
+  els => els.map(el => Number(el.tagName[1]))
+);
+expect(levels).toEqual([2]); // fails — actual is [4]
+// axe-core rule "heading-order"</code>
+  </div>
+  <div class="card good">
+    <div class="label">Sequential heading levels <span class="badge good">good</span></div>
+    <div class="heading-demo" id="heading-good">
+      <h3>Order Summary</h3>
+      <p>Two wireless mice, one keyboard.</p>
+      <h4>Shipping</h4>
+      <p>Estimated delivery in 3-5 business days.</p>
+      <h5>Tracking</h5>
+      <p>Tracking number will be emailed once shipped.</p>
+    </div>
+    <code>await expect(page.getByRole('heading', { level: 3, name: 'Order Summary' })).toBeVisible();
+await expect(page.getByRole('heading', { level: 4, name: 'Shipping' })).toBeVisible();
+// XPath: //h3[normalize-space()='Order Summary']</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>5. Landmarks (page regions)</h2>
+  <div class="card bad" id="landmarks-demo-bad">
+    <div class="label">Layout built entirely from &lt;div&gt;s <span class="badge bad">bad</span></div>
+    <div class="site-frame">
+      <div class="div-header">MyShop</div>
+      <div class="div-nav"><ul><li>Home</li><li>Deals</li><li>Cart</li></ul></div>
+      <div class="div-main">Welcome to the store.</div>
+      <div class="div-footer">© 2026 MyShop</div>
+    </div>
+    <code>// no landmark roles exist to query — screen-reader users lose one-key jumps
+// between regions (e.g. "navigate to main")
+await expect(page.getByRole('main')).toHaveCount(0);
+await expect(page.getByRole('navigation')).toHaveCount(0);
+// axe-core rule "region" / "landmark-one-main"</code>
+  </div>
+  <div class="card good" id="landmarks-demo">
+    <div class="label">Layout built from semantic landmark elements <span class="badge good">good</span></div>
+    <div class="site-frame">
+      <header>MyShop</header>
+      <nav aria-label="Primary"><ul><li>Home</li><li>Deals</li><li>Cart</li></ul></nav>
+      <main id="main-content">Welcome to the store.</main>
+      <footer>© 2026 MyShop</footer>
+    </div>
+    <code>await expect(page.getByRole('banner')).toBeVisible();       // header
+await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible();
+await expect(page.getByRole('main')).toBeVisible();
+await expect(page.getByRole('contentinfo')).toBeVisible();  // footer</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>6. ARIA Roles &amp; States</h2>
+  <div class="card bad">
+    <div class="label">Custom checkbox with no role/state (just a styled span) <span class="badge bad">bad</span></div>
+    <span id="fake-checkbox" style="display:inline-block;width:18px;height:18px;border:2px solid #6366f1;border-radius:4px;cursor:pointer;" onclick="this.classList.toggle('checked'); this.style.background=this.classList.contains('checked')?'#6366f1':'#fff'; report(this,'toggled (no state exposed)')"></span> Subscribe to newsletter
+    <code>await expect(page.getByRole('checkbox', { name: 'Subscribe to newsletter' })).toHaveCount(0);
+// axe-core: no violation fires here (it's just a span), which is exactly
+// the trap — automated tools can't tell an interactive-looking span apart
+// from a decorative one. This needs a manual role/keyboard check.</code>
+  </div>
+  <div class="card good">
+    <div class="label">Accordion header with proper aria-expanded <span class="badge good">good</span></div>
+    <div class="accordion">
+      <button class="acc-header" id="acc-h1" aria-expanded="false" onclick="toggleAccordion(this)">Return Policy</button>
+      <div class="acc-panel" id="acc-p1" hidden>Items can be returned within 30 days of delivery.</div>
+    </div>
+    <code>const header = page.getByRole('button', { name: 'Return Policy' });
+await expect(header).toHaveAttribute('aria-expanded', 'false');
+await header.click();
+await expect(header).toHaveAttribute('aria-expanded', 'true');
+await expect(page.getByText('Items can be returned')).toBeVisible();</code>
+  </div>
+  <div class="card bad">
+    <div class="label">Redundant / conflicting ARIA (role="button" on a real &lt;button&gt;) <span class="badge bad">bad</span></div>
+    <button role="button" aria-pressed="maybe" id="bad-aria">Toggle Favorite</button>
+    <div class="hint"><code style="display:inline;padding:1px 6px;">role="button"</code> on a &lt;button&gt; is redundant, and <code style="display:inline;padding:1px 6px;">aria-pressed="maybe"</code> is an invalid value — assistive tech ignores or mishandles it.</div>
+    <code>// axe-core rule "aria-allowed-attr" / "aria-valid-attr-value"
+const results = await new AxeBuilder({ page }).include('#bad-aria').analyze();
+expect(results.violations.map(v => v.id)).toContain('aria-valid-attr-value');</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>7. Color Contrast</h2>
+  <div class="card bad">
+    <div class="label">Low-contrast text (light gray on gray) <span class="badge bad">bad</span></div>
+    <div class="contrast-bad">Estimated delivery: 3-5 business days</div>
+    <code>// axe-core rule "color-contrast" — the reliable way to catch this,
+// since contrast ratio isn't something Playwright locators expose directly
+const results = await new AxeBuilder({ page }).include('.contrast-bad').analyze();
+expect(results.violations.map(v => v.id)).toContain('color-contrast');</code>
+  </div>
+  <div class="card good">
+    <div class="label">Sufficient contrast (WCAG AA, ≥4.5:1 for normal text) <span class="badge good">good</span></div>
+    <div class="contrast-good">Estimated delivery: 3-5 business days</div>
+    <code>const results = await new AxeBuilder({ page }).include('.contrast-good').analyze();
+expect(results.violations.filter(v => v.id === 'color-contrast')).toEqual([]);</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>8. Focus Visibility &amp; Keyboard Traps</h2>
+  <div class="card bad">
+    <div class="label">outline:none with no replacement focus style <span class="badge bad">bad</span></div>
+    <button class="no-outline" id="no-outline-btn">Apply Coupon</button>
+    <div class="hint">Keyboard users tabbing through the page get no visual indication this button is focused.</div>
+    <code>await page.getByRole('button', { name: 'Apply Coupon' }).focus();
+const outline = await page.locator('#no-outline-btn').evaluate(
+  el => getComputedStyle(el).outlineStyle
+);
+expect(outline).not.toBe('none'); // fails on this element</code>
+  </div>
+  <div class="card good">
+    <div class="label">Custom, clearly visible focus style <span class="badge good">good</span></div>
+    <button class="good-outline" id="good-outline-btn">Apply Coupon</button>
+    <code>await page.getByRole('button', { name: 'Apply Coupon' }).focus();
+await expect(page.locator('#good-outline-btn')).toBeFocused();
+const outline = await page.locator('#good-outline-btn').evaluate(
+  el => getComputedStyle(el).outlineStyle
+);
+expect(outline).toBe('solid');</code>
+  </div>
+  <div class="card good">
+    <div class="label">Modal dialog with a focus trap (Tab cycles inside, Esc closes) <span class="badge good">good</span></div>
+    <button id="open-modal-btn" onclick="openModal()">Delete Account</button>
+    <div class="hint">Focus should move into the dialog on open, stay trapped inside while it's open, and return to the trigger button on close.</div>
+    <code>await page.getByRole('button', { name: 'Delete Account' }).click();
+const dialog = page.getByRole('dialog', { name: 'Confirm Deletion' });
+await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused();
+await page.keyboard.press('Tab');
+await expect(dialog.getByRole('button', { name: 'Confirm' })).toBeFocused();
+await page.keyboard.press('Tab'); // should wrap back, not escape the dialog
+await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeFocused();
+await page.keyboard.press('Escape');
+await expect(page.getByRole('button', { name: 'Delete Account' })).toBeFocused();</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>9. Live Regions (dynamic updates)</h2>
+  <div class="card bad">
+    <div class="label">Cart count updates with no live region <span class="badge bad">bad</span></div>
+    <div class="cart-box">
+      Cart items: <span class="cart-count" id="cart-count-bad">0</span>
+      <div class="row" style="margin-top:8px;"><button onclick="document.getElementById('cart-count-bad').textContent = Number(document.getElementById('cart-count-bad').textContent)+1">Add to Cart</button></div>
+    </div>
+    <div class="hint">A screen-reader user who isn't focused on this element never hears that the count changed.</div>
+    <code>// text does update and Playwright CAN assert it — the a11y gap is that
+// nothing announces the change out-of-band, which axe-core can't detect either.
+// Manual review / screen-reader testing is required here.
+await expect(page.locator('#cart-count-bad')).toHaveText('1');</code>
+  </div>
+  <div class="card good">
+    <div class="label">Cart count inside an aria-live region <span class="badge good">good</span></div>
+    <div class="cart-box">
+      Cart items: <span class="cart-count" id="cart-count-good">0</span>
+      <div aria-live="polite" class="hint" id="cart-announcement" style="margin-top:4px;"></div>
+      <div class="row" style="margin-top:8px;"><button onclick="addToCartGood()">Add to Cart</button></div>
+    </div>
+    <code>await page.getByRole('button', { name: 'Add to Cart' }).click();
+await expect(page.locator('#cart-announcement')).toHaveText('1 item in cart');
+// axe-core rule "aria-live-region-mode" / manual: confirm the container
+// itself is never re-created (that would break the live-region announcement)</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>10. Data Tables</h2>
+  <div class="card bad">
+    <div class="label">Table with no header cells <span class="badge bad">bad</span></div>
+    <table class="bad">
+      <tr><td>Plan</td><td>Price</td><td>Storage</td></tr>
+      <tr><td>Basic</td><td>$5/mo</td><td>10GB</td></tr>
+      <tr><td>Pro</td><td>$15/mo</td><td>100GB</td></tr>
+    </table>
+    <code>await expect(page.getByRole('columnheader')).toHaveCount(0);
+// axe-core rule "table-fake-caption" / manual: a screen reader reading
+// row-by-row never re-announces which column ("Price", "Storage") a cell belongs to</code>
+  </div>
+  <div class="card good">
+    <div class="label">Table with &lt;th scope&gt; header cells <span class="badge good">good</span></div>
+    <table class="good">
+      <caption style="text-align:left;font-weight:700;color:#3730a3;padding-bottom:6px;">Subscription Plans</caption>
+      <tr><th scope="col">Plan</th><th scope="col">Price</th><th scope="col">Storage</th></tr>
+      <tr><th scope="row">Basic</th><td>$5/mo</td><td>10GB</td></tr>
+      <tr><th scope="row">Pro</th><td>$15/mo</td><td>100GB</td></tr>
+    </table>
+    <code>await expect(page.getByRole('columnheader', { name: 'Price' })).toBeVisible();
+await expect(page.getByRole('rowheader', { name: 'Pro' })).toBeVisible();
+await expect(page.getByRole('table', { name: 'Subscription Plans' })).toBeVisible();</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>11. Form Validation Errors</h2>
+  <div class="card bad">
+    <div class="label">Error shown only as color, not linked to the field <span class="badge bad">bad</span></div>
+    <label for="promo-bad">Promo Code</label><br>
+    <input type="text" id="promo-bad" class="invalid" oninput="this.classList.remove('invalid')">
+    <div style="color:#dc2626;font-size:12px;margin-top:4px;">Invalid promo code</div>
+    <code>// the error text has no programmatic relationship to the input
+const describedBy = await page.locator('#promo-bad').getAttribute('aria-describedby');
+expect(describedBy).toBeNull(); // proves the link is missing
+// axe-core rule "aria-input-field-name" won't catch this specific gap —
+// this needs an explicit aria-describedby / aria-invalid check</code>
+  </div>
+  <div class="card good">
+    <div class="label">Error linked via aria-describedby + aria-invalid <span class="badge good">good</span></div>
+    <label for="promo-good">Promo Code</label><br>
+    <input type="text" id="promo-good" aria-describedby="promo-good-error" aria-invalid="true" onfocus="this.setAttribute('aria-invalid','true')">
+    <div class="field-error show" id="promo-good-error">Invalid promo code</div>
+    <code>const field = page.getByLabel('Promo Code');
+await expect(field).toHaveAttribute('aria-invalid', 'true');
+const describedBy = await field.getAttribute('aria-describedby');
+await expect(page.locator('#' + describedBy)).toHaveText('Invalid promo code');</code>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2>12. Full-page Automated Scan (put it all together)</h2>
+  <div class="card">
+    <div class="label">Scan this whole page and inspect the violations list</div>
+    <code>test('audit the whole practice page', async ({ page }) => {
+  await page.goto('/tests/playwright-accessibility-practice.html');
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa']) // scope to WCAG 2.0/2.1 A & AA rules
+    .analyze();
+
+  console.log(results.violations.map(v => ({
+    id: v.id,
+    impact: v.impact,
+    nodes: v.nodes.length,
+  })));
+
+  // start permissive while practicing, then tighten:
+  expect(results.violations.length).toBeLessThan(20);
+});</code>
+    <div class="hint">This page intentionally fails a full-page scan — every "bad" card above is a real, reproducible violation. Fix one at a time by editing this file and re-running the scan until violations.length reaches 0, or use <code style="display:inline;padding:1px 6px;">.include()</code> to scan one card's container at a time.</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Modal markup (hidden until opened)                            -->
+  <!-- ============================================================ -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title" id="confirm-modal">
+      <h3 id="modal-title">Confirm Deletion</h3>
+      <p style="font-size:13px;color:#475569;">This action cannot be undone.</p>
+      <div class="row">
+        <button id="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button id="modal-confirm" onclick="closeModal()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ---------- Universal action reporter ---------- */
+document.querySelectorAll('.card').forEach(function(card){
+  var msg = document.createElement('div');
+  msg.className = 'msg';
+  card.appendChild(msg);
+});
+function report(el, text){
+  var card = el.closest('.card');
+  if(!card) return;
+  var slot = card.querySelector('.msg');
+  slot.textContent = '✔ ' + text;
+  slot.classList.add('show');
+}
+
+/* ---------- Accordion ---------- */
+function toggleAccordion(btn){
+  var expanded = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!expanded));
+  var panel = document.getElementById(btn.id.replace('h', 'p'));
+  if(panel) panel.hidden = expanded;
+}
+
+/* ---------- Live region cart ---------- */
+function addToCartGood(){
+  var countEl = document.getElementById('cart-count-good');
+  var count = Number(countEl.textContent) + 1;
+  countEl.textContent = count;
+  document.getElementById('cart-announcement').textContent = count + (count === 1 ? ' item in cart' : ' items in cart');
+}
+
+/* ---------- Modal focus trap ---------- */
+var modalTrigger = null;
+function openModal(){
+  modalTrigger = document.getElementById('open-modal-btn');
+  document.getElementById('modal-backdrop').classList.add('open');
+  document.getElementById('modal-cancel').focus();
+}
+function closeModal(){
+  document.getElementById('modal-backdrop').classList.remove('open');
+  if(modalTrigger) modalTrigger.focus();
+}
+document.addEventListener('keydown', function(e){
+  var backdrop = document.getElementById('modal-backdrop');
+  if(!backdrop.classList.contains('open')) return;
+  if(e.key === 'Escape'){
+    closeModal();
+    return;
+  }
+  if(e.key === 'Tab'){
+    var focusables = [document.getElementById('modal-cancel'), document.getElementById('modal-confirm')];
+    var idx = focusables.indexOf(document.activeElement);
+    e.preventDefault();
+    var next = e.shiftKey ? (idx <= 0 ? focusables.length - 1 : idx - 1) : (idx === focusables.length - 1 ? 0 : idx + 1);
+    focusables[next].focus();
+  }
+});
+</script>
+
+</body>
+</html>
