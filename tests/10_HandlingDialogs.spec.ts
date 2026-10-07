@@ -1,5 +1,4 @@
 import {test,expect } from '@playwright/test';
-import { assert } from 'console';
 
 test('Verify dialog basic',async({page})=>{
 

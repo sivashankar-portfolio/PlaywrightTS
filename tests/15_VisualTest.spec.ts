@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { setDevice } from '../src/utils/DeviceUtils';
-import { VisualUtil } from '../src/utils/VisulaUtils';
+import { setDevice } from '../src/utils/DeviceUtils.js';
+import { VisualUtil } from '../src/utils/VisulaUtils.js';
 
 /**
  * VISUAL TESTING WITH PLAYWRIGHT

@@ -1,5 +1,5 @@
 import { expect,test } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { AxeBuilder } from '@axe-core/playwright';
 
 test('Basic of accessibility Testing - Should not have accessibility issues',async({page},testInfo)=>{
 
@@ -79,6 +79,6 @@ test('Violations filter', async ({page}) => {
       .analyze();
 
 
- const seriousViolations = accessibilityScanResults.violations.filter(v => v.impact === 'serious');
+ const seriousViolations = accessibilityScanResults.violations.filter((v) => v.impact === 'serious');
 expect(seriousViolations).toEqual([]);
 });

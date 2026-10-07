@@ -4,14 +4,18 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "test-trace":"playwright test --headed --project=chromium --trace=retain-on-failure"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.6.4",
+    "allure-commandline": "^2.46.1",
+    "allure-playwright": "^3.12.2",
     "eslint-plugin-playwright": "^2.11.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3",

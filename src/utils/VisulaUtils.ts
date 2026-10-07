@@ -16,7 +16,8 @@ static async compareElement(locator:Locator,snapShotName:string)
 
 static async compareResponsive(page:Page,snapShotName:string,deviceName:string)
 {
-    setDevice(page,deviceName);
+    await setDevice(page,deviceName);
+    const { width, height } = page.viewportSize()!;
     expect(await page.screenshot()).toMatchSnapshot(`${snapShotName}-${width}x${height}.png`);
 }
 

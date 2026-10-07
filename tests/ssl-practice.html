@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SSL Practice Page</title>
+</head>
+<body>
+  <h1 id="title">Secure Page Loaded</h1>
+  <p id="message">This page is served over HTTPS with a self-signed certificate.</p>
+  <p id="protocol"></p>
+  <script>
+    document.getElementById('protocol').textContent = 'Protocol: ' + location.protocol;
+  </script>
+</body>
+</html>
